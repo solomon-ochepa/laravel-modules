@@ -3,6 +3,7 @@
 namespace Nwidart\Modules\Commands\Make;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Nwidart\Modules\Exceptions\FileAlreadyExistException;
 use Nwidart\Modules\Generators\FileGenerator;
 
@@ -47,7 +48,6 @@ abstract class GeneratorCommand extends Command
                 $overwriteFile = $this->hasOption('force') ? $this->option('force') : false;
                 (new FileGenerator($path, $contents))->withFileOverwrite($overwriteFile)->generate();
             });
-
         } catch (FileAlreadyExistException $e) {
             $this->components->error("File : {$path} already exists.");
 
@@ -101,5 +101,29 @@ abstract class GeneratorCommand extends Command
         $namespace = str_replace('/', '\\', $namespace);
 
         return trim($namespace, '\\');
+    }
+
+    public function getStudly(string $string, $separator = '/'): string
+    {
+        return collect(explode($separator, Str::of($string)->replace("{$separator}{$separator}", $separator)->trim($separator)))->map(fn ($dir) => Str::studly($dir))->implode($separator);
+    }
+
+    public function getStudlyNamespace(string $namespace): string
+    {
+        return $this->getStudly($namespace, '\\');
+    }
+
+    public function getPathNamespace(string $path): string
+    {
+        return Str::of($this->getStudly($path))->replace('/', '\\')->trim('\\');
+    }
+
+    public function getModuleNamespace(string $path = null, string $module = null): string
+    {
+        return $this->getStudlyNamespace(
+            $this->laravel['modules']->config('namespace') . '\\'
+                . ($module ?? $this->laravel['modules']->findOrFail($this->getModuleName())) . '\\'
+                . $this->getPathNamespace($path)
+        );
     }
 }

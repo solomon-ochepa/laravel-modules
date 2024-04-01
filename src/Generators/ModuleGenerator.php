@@ -277,12 +277,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Set the module instance.
-     *
-     * @param mixed $module
-     *
-     * @return $this
      */
-    public function setModule($module)
+    public function setModule($module): self
     {
         $this->module = $module;
 
@@ -291,12 +287,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Setting the author from the command
-     *
-     * @param string|null $name
-     * @param string|null $email
-     * @return $this
      */
-    function setAuthor(string $name = null, string $email = null)
+    function setAuthor(?string $name = null, ?string $email = null): self
     {
         $this->author['name'] = $name;
         $this->author['email'] = $email;
@@ -306,11 +298,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Installing vendor from the command
-     *
-     * @param string|null $vendor
-     * @return $this
      */
-    function setVendor(string $vendor = null)
+    function setVendor(?string $vendor = null): self
     {
         $this->vendor = $vendor;
 
@@ -319,32 +308,24 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the list of folders will created.
-     *
-     * @return array
      */
-    public function getFolders()
+    public function getFolders(): array
     {
         return $this->module->config('paths.generator');
     }
 
     /**
      * Get the list of files will created.
-     *
-     * @return array
      */
-    public function getFiles()
+    public function getFiles(): array
     {
         return $this->module->config('stubs.files');
     }
 
     /**
      * Set force status.
-     *
-     * @param bool|int $force
-     *
-     * @return $this
      */
-    public function setForce($force)
+    public function setForce(bool|int $force): self
     {
         $this->force = $force;
 
@@ -414,10 +395,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Generate git keep to the specified path.
-     *
-     * @param string $path
      */
-    public function generateGitKeep($path)
+    public function generateGitKeep(string $path)
     {
         $this->filesystem->put($path . '/.gitkeep', '');
     }
@@ -500,12 +479,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the contents of the specified stub file by given stub name.
-     *
-     * @param $stub
-     *
-     * @return string
      */
-    protected function getStubContents($stub)
+    protected function getStubContents($stub): string
     {
         return (new Stub(
             '/' . $stub . '.stub',
@@ -524,12 +499,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Get array replacement for the specified stub.
-     *
-     * @param $stub
-     *
-     * @return array
      */
-    protected function getReplacement($stub)
+    protected function getReplacement($stub): array
     {
         $replacements = $this->module->config('stubs.replacements');
 
@@ -546,6 +517,7 @@ class ModuleGenerator extends Generator
                 $keys[] = 'PROVIDER_NAMESPACE';
             }
         }
+
         foreach ($keys as $key) {
             if (method_exists($this, $method = 'get' . ucfirst(Str::studly(strtolower($key))) . 'Replacement')) {
                 $replaces[$key] = $this->$method();
@@ -584,8 +556,10 @@ class ModuleGenerator extends Generator
         $content = $this->filesystem->get($path);
         $namespace = $this->getModuleNamespaceReplacement();
         $studlyName = $this->getStudlyNameReplacement();
+        $class = "{$studlyName}ServiceProvider";
 
-        $provider = '"' . $namespace . '\\\\' . $studlyName . '\\\\Providers\\\\' . $studlyName . 'ServiceProvider"';
+        $provider_namespace = str_replace('\\', '\\\\', config('modules.paths.generator.provider.namespace', $this->getPathNamespace(config('modules.paths.generator.provider.path', 'app/Providers'))));
+        $provider = '"' . $namespace . '\\\\' . $studlyName . '\\\\' . $provider_namespace . '\\\\' . $class  . '"';
 
         $content = str_replace($provider, '', $content);
 
@@ -594,70 +568,56 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the module name in lower case.
-     *
-     * @return string
      */
-    protected function getLowerNameReplacement()
+    protected function getLowerNameReplacement(): string
     {
         return strtolower($this->getName());
     }
 
     /**
      * Get the module name in studly case.
-     *
-     * @return string
      */
-    protected function getStudlyNameReplacement()
+    protected function getStudlyNameReplacement(): string
     {
         return $this->getName();
     }
 
     /**
      * Get replacement for $VENDOR$.
-     *
-     * @return string
      */
-    protected function getVendorReplacement()
+    protected function getVendorReplacement(): string
     {
         return $this->vendor ?: $this->module->config('composer.vendor');
     }
 
     /**
      * Get replacement for $MODULE_NAMESPACE$.
-     *
-     * @return string
      */
-    protected function getModuleNamespaceReplacement()
+    protected function getModuleNamespaceReplacement(): string
     {
         return str_replace('\\', '\\\\', $this->module->config('namespace'));
     }
 
     /**
      * Get replacement for $CONTROLLER_NAMESPACE$.
-     *
-     * @return string
      */
     private function getControllerNamespaceReplacement(): string
     {
-        return str_replace('/', '\\', $this->module->config('paths.generator.controller.namespace') ?: ltrim($this->module->config('paths.generator.controller.path', 'Controller'), config('modules.paths.app_folder')));
+        return $this->module->config('paths.generator.controller.namespace') ?? $this->getPathNamespace($this->module->config('paths.generator.controller.path', 'app/Http/Controllers'));
     }
 
     /**
      * Get replacement for $AUTHOR_NAME$.
-     *
-     * @return string
      */
-    protected function getAuthorNameReplacement()
+    protected function getAuthorNameReplacement(): string
     {
         return $this->author['name'] ?: $this->module->config('composer.author.name');
     }
 
     /**
      * Get replacement for $AUTHOR_EMAIL$.
-     *
-     * @return string
      */
-    protected function getAuthorEmailReplacement()
+    protected function getAuthorEmailReplacement(): string
     {
         return $this->author['email'] ?: $this->module->config('composer.author.email');
     }
@@ -665,5 +625,12 @@ class ModuleGenerator extends Generator
     protected function getProviderNamespaceReplacement(): string
     {
         return str_replace('\\', '\\\\', GenerateConfigReader::read('provider')->getNamespace());
+    }
+
+    public function getPathNamespace(string $path): string
+    {
+        $path = str_replace('/', '\\', collect(explode('/', $path))->map(fn ($dir) => Str::studly($dir))->implode('/'));
+
+        return $path;
     }
 }
