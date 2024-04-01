@@ -14,7 +14,7 @@ abstract class GeneratorCommand extends Command
      *
      * @var string
      */
-    protected $argumentName = '';
+    protected $argumentName;
 
     /**
      * Get template contents.
@@ -64,7 +64,7 @@ abstract class GeneratorCommand extends Command
      */
     public function getClass()
     {
-        return class_basename($this->argument($this->argumentName));
+        return class_basename($this->argument($this->argumentName ?? 'name'));
     }
 
     /**
@@ -86,7 +86,7 @@ abstract class GeneratorCommand extends Command
      */
     public function getClassNamespace($module)
     {
-        $extra = str_replace($this->getClass(), '', $this->argument($this->argumentName));
+        $extra = str_replace($this->getClass(), '', $this->argument($this->argumentName ?? 'name'));
 
         $extra = str_replace('/', '\\', $extra);
 
@@ -118,7 +118,7 @@ abstract class GeneratorCommand extends Command
         return Str::of($this->getStudly($path))->replace('/', '\\')->trim('\\');
     }
 
-    public function getModuleNamespace(string $path = null, string $module = null): string
+    public function getModuleNamespace(string $path = '', string $module = null): string
     {
         return $this->getStudlyNamespace(
             $this->laravel['modules']->config('namespace') . '\\'
