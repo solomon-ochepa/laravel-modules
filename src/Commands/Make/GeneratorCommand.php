@@ -13,7 +13,7 @@ abstract class GeneratorCommand extends Command
      *
      * @var string
      */
-    protected $argumentName = '';
+    protected $argumentName;
 
     /**
      * Get template contents.
@@ -47,7 +47,6 @@ abstract class GeneratorCommand extends Command
                 $overwriteFile = $this->hasOption('force') ? $this->option('force') : false;
                 (new FileGenerator($path, $contents))->withFileOverwrite($overwriteFile)->generate();
             });
-
         } catch (FileAlreadyExistException $e) {
             $this->components->error("File : {$path} already exists.");
 
@@ -64,7 +63,7 @@ abstract class GeneratorCommand extends Command
      */
     public function getClass()
     {
-        return class_basename($this->argument($this->argumentName));
+        return class_basename($this->argument($this->argumentName ?? 'name'));
     }
 
     /**
@@ -86,7 +85,7 @@ abstract class GeneratorCommand extends Command
      */
     public function getClassNamespace($module)
     {
-        $extra = str_replace($this->getClass(), '', $this->argument($this->argumentName));
+        $extra = str_replace($this->getClass(), '', $this->argument($this->argumentName ?? 'name'));
 
         $extra = str_replace('/', '\\', $extra);
 
@@ -101,5 +100,29 @@ abstract class GeneratorCommand extends Command
         $namespace = str_replace('/', '\\', $namespace);
 
         return trim($namespace, '\\');
+    }
+
+    public function getStudly(string $string, $separator = '/'): string
+    {
+        return collect(explode($separator, Str::of($string)->replace("{$separator}{$separator}", $separator)->trim($separator)))->map(fn ($dir) => Str::studly($dir))->implode($separator);
+    }
+
+    public function getStudlyNamespace(string $namespace): string
+    {
+        return $this->getStudly($namespace, '\\');
+    }
+
+    public function getPathNamespace(string $path): string
+    {
+        return Str::of($this->getStudly($path))->replace('/', '\\')->trim('\\');
+    }
+
+    public function getModuleNamespace(string $path = '', string $module = null): string
+    {
+        return $this->getStudlyNamespace(
+            $this->laravel['modules']->config('namespace') . '\\'
+                . ($module ?? $this->laravel['modules']->findOrFail($this->getModuleName())) . '\\'
+                . $this->getPathNamespace($path)
+        );
     }
 }
