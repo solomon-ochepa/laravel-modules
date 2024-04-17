@@ -4,6 +4,26 @@ All Notable changes to `laravel-modules` will be documented in this file.
 
 ## Next
 
+## 11.0.5 - 2024-04-17
+
+## Changes
+
+- [@alissn](https://github.com/alissn) check command has direction option, load module with 'priority' 
+
+
+## 11.0.4 - 2024-04-08
+
+## Changes
+
+- [@dcblogdev](https://github.com/dcblogdev) Updated config to use namespace and path for seeders and factories
+- [@solomon-ochepa](https://github.com/solomon-ochepa) Updated vendor / author keys for config/.env
+- [@enterprime](https://github.com/enterprime) Corrected factories to Factories and added cache options to ENV
+
+## Added
+
+- [@dcblogdev](https://github.com/dcblogdev) Added return type array definition
+- [@dcblogdev](https://github.com/dcblogdev) Added test to confirm author details
+
 ## 11.0.3 - 2024-03-24
 
 ## Added 
