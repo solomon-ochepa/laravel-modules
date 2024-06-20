@@ -33,7 +33,7 @@ class EnableCommand extends BaseCommand
         });
     }
 
-    function getInfo(): string|null
+    public function getInfo(): ?string
     {
         return 'Disabling module ...';
     }

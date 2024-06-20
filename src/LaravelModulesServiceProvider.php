@@ -2,6 +2,8 @@
 
 namespace Nwidart\Modules;
 
+use Composer\InstalledVersions;
+use Illuminate\Foundation\Console\AboutCommand;
 use Nwidart\Modules\Contracts\RepositoryInterface;
 use Nwidart\Modules\Exceptions\InvalidActivatorClass;
 use Nwidart\Modules\Support\Stub;
@@ -15,6 +17,10 @@ class LaravelModulesServiceProvider extends ModulesServiceProvider
     {
         $this->registerNamespaces();
         $this->registerModules();
+
+        AboutCommand::add('Laravel-Modules', [
+            'Version' => fn () => InstalledVersions::getPrettyVersion('nwidart/laravel-modules'),
+        ]);
     }
 
     /**
@@ -26,7 +32,7 @@ class LaravelModulesServiceProvider extends ModulesServiceProvider
         $this->setupStubPath();
         $this->registerProviders();
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'modules');
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'modules');
     }
 
     /**
@@ -34,7 +40,7 @@ class LaravelModulesServiceProvider extends ModulesServiceProvider
      */
     public function setupStubPath()
     {
-        $path = $this->app['config']->get('modules.stubs.path') ?? __DIR__ . '/Commands/stubs';
+        $path = $this->app['config']->get('modules.stubs.path') ?? __DIR__.'/Commands/stubs';
         Stub::setBasePath($path);
 
         $this->app->booted(function ($app) {
@@ -58,7 +64,7 @@ class LaravelModulesServiceProvider extends ModulesServiceProvider
         });
         $this->app->singleton(Contracts\ActivatorInterface::class, function ($app) {
             $activator = $app['config']->get('modules.activator');
-            $class = $app['config']->get('modules.activators.' . $activator)['class'];
+            $class = $app['config']->get('modules.activators.'.$activator)['class'];
 
             if ($class === null) {
                 throw InvalidActivatorClass::missingConfig();

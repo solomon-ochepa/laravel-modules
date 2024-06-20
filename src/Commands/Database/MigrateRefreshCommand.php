@@ -21,22 +21,21 @@ class MigrateRefreshCommand extends BaseCommand
      */
     protected $description = 'Rollback & re-migrate the modules migrations.';
 
-
     public function executeAction($name): void
     {
         $module = $this->getModuleModel($name);
 
         $this->components->task("Refreshing Migration {$module->getName()} module", function () use ($module) {
             $this->call('module:migrate-reset', [
-                'module'     => $module->getStudlyName(),
+                'module' => $module->getStudlyName(),
                 '--database' => $this->option('database'),
-                '--force'    => $this->option('force'),
+                '--force' => $this->option('force'),
             ]);
 
             $this->call('module:migrate', [
-                'module'     => $module->getStudlyName(),
+                'module' => $module->getStudlyName(),
                 '--database' => $this->option('database'),
-                '--force'    => $this->option('force'),
+                '--force' => $this->option('force'),
             ]);
 
             if ($this->option('seed')) {
@@ -50,10 +49,8 @@ class MigrateRefreshCommand extends BaseCommand
 
     /**
      * Get the console command options.
-     *
-     * @return array
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],

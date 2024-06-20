@@ -3,17 +3,23 @@
 namespace Nwidart\Modules\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
-use Nwidart\Modules\Facades\Module;
+use Nwidart\Modules\Contracts\ConfirmableCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function Laravel\Prompts\multiselect;
 
 abstract class BaseCommand extends Command implements PromptsForMissingInput
 {
-    const ALL = 'All';
+    use ConfirmableTrait;
+    use Prohibitable;
+
+    public const ALL = 'All';
 
     /**
      * Create a new console command instance.
@@ -35,13 +41,22 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
             InputArgument::IS_ARRAY,
             'The name of module will be used.',
         ));
+
+        if ($this instanceof ConfirmableCommand) {
+            $this->configureConfirmable();
+        }
     }
 
-    abstract function executeAction($name);
+    abstract public function executeAction($name);
 
-    public function getInfo(): string|null
+    public function getInfo(): ?string
     {
-        return NULL;
+        return null;
+    }
+
+    public function getConfirmableLabel(): ?string
+    {
+        return 'Warning';
     }
 
     /**
@@ -49,6 +64,13 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
      */
     public function handle()
     {
+        if ($this instanceof ConfirmableCommand) {
+            if ($this->isProhibited() ||
+                ! $this->confirmToProceed($this->getConfirmableLabel(), fn () => true)) {
+                return 1;
+            }
+        }
+
         if (! is_null($info = $this->getInfo())) {
             $this->components->info($info);
         }
@@ -62,10 +84,13 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
 
     protected function promptForMissingArguments(InputInterface $input, OutputInterface $output): void
     {
-        $modules = array_keys($this->laravel['modules']->all());
+        $modules = $this->hasOption('direction')
+            ? array_keys($this->laravel['modules']->getOrdered($input->hasOption('direction')))
+            : array_keys($this->laravel['modules']->all());
 
         if ($input->getOption(strtolower(self::ALL))) {
             $input->setArgument('module', $modules);
+
             return;
         }
 
@@ -74,7 +99,7 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
         }
 
         $selected_item = multiselect(
-            label   : 'What Module want to check?',
+            label   : 'Select Modules',
             options : [
                 self::ALL,
                 ...$modules,
@@ -82,7 +107,8 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
             required: 'You must select at least one module',
         );
 
-        $input->setArgument('module',
+        $input->setArgument(
+            'module',
             value: in_array(self::ALL, $selected_item)
                 ? $modules
                 : $selected_item
@@ -96,4 +122,14 @@ abstract class BaseCommand extends Command implements PromptsForMissingInput
             : $this->laravel['modules']->findOrFail($name);
     }
 
+    private function configureConfirmable(): void
+    {
+        $this->getDefinition()
+            ->addOption(new InputOption(
+                'force',
+                null,
+                InputOption::VALUE_NONE,
+                'Force the operation to run without confirmation.',
+            ));
+    }
 }

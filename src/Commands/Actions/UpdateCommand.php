@@ -29,7 +29,7 @@ class UpdateCommand extends BaseCommand
         });
     }
 
-    function getInfo(): string|null
+    public function getInfo(): ?string
     {
         return 'Updating Module ...';
     }

@@ -31,12 +31,9 @@ class ModelShowCommand extends ShowModelCommand
                 {--database= : The database connection to use}
                 {--json : Output the model as JSON}';
 
-
     /**
      * Qualify the given model class base name.
      *
-     * @param string $model
-     * @return string
      *
      * @see \Illuminate\Console\GeneratorCommand
      */
@@ -48,16 +45,15 @@ class ModelShowCommand extends ShowModelCommand
 
         $rootNamespace = config('modules.namespace');
 
-        $modelPath = glob($rootNamespace . DIRECTORY_SEPARATOR .
-            '*' . DIRECTORY_SEPARATOR .
-            config('modules.paths.generator.model.path') . DIRECTORY_SEPARATOR .
+        $modelPath = glob($rootNamespace.DIRECTORY_SEPARATOR.
+            '*'.DIRECTORY_SEPARATOR.
+            config('modules.paths.generator.model.path').DIRECTORY_SEPARATOR.
             "$model.php");
 
-        if (!count($modelPath)) {
+        if (! count($modelPath)) {
             return $model;
         }
 
         return str_replace(['/', '.php'], ['\\', ''], $modelPath[0]);
     }
-
 }

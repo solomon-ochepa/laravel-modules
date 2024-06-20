@@ -1,4 +1,6 @@
-<?php return '<?php
+<?php
+
+return '<?php
 
 namespace Modules\\Blog\\Models;
 
@@ -10,10 +12,10 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [];
-    
+
     protected static function newFactory()
     {
-        return \\Modules\\Blog\\Database\\factories\\PostFactory::new();
+        return \\Modules\\Blog\\Database\\Factories\\PostFactory::new();
     }
 }
 ';

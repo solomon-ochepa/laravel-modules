@@ -29,7 +29,7 @@ class UnUseCommand extends BaseCommand
         });
     }
 
-    function getInfo(): string|null
+    public function getInfo(): ?string
     {
         return 'Forget Using Module ...';
     }

@@ -43,7 +43,9 @@ class ModuleMakeCommand extends Command
                 ->setComponent($this->components)
                 ->setForce($this->option('force'))
                 ->setType($this->getModuleType())
-                ->setActive(!$this->option('disabled'))
+                ->setActive(! $this->option('disabled'))
+                ->setVendor($this->option('author-vendor'))
+                ->setAuthor($this->option('author-name'), $this->option('author-email'))
                 ->generate();
 
             if ($code === E_ERROR) {
@@ -54,7 +56,7 @@ class ModuleMakeCommand extends Command
         // to discover new service providers
         Process::path(base_path())
             ->command('composer dump-autoload')
-            ->run();
+            ->run()->output();
 
         return $success ? 0 : E_ERROR;
     }
@@ -79,14 +81,17 @@ class ModuleMakeCommand extends Command
             ['web', null, InputOption::VALUE_NONE, 'Generate a web module.'],
             ['disabled', 'd', InputOption::VALUE_NONE, 'Do not enable the module at creation.'],
             ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when the module already exists.'],
+            ['author-name', null, InputOption::VALUE_OPTIONAL, 'Author name.'],
+            ['author-email', null, InputOption::VALUE_OPTIONAL, 'Author email.'],
+            ['author-vendor', null, InputOption::VALUE_OPTIONAL, 'Author vendor.'],
         ];
     }
 
     /**
-    * Get module type .
-    *
-    * @return string
-    */
+     * Get module type .
+     *
+     * @return string
+     */
     private function getModuleType()
     {
         $isPlain = $this->option('plain');

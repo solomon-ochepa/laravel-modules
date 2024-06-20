@@ -34,14 +34,14 @@ class MigrateStatusCommand extends BaseCommand
         $path = str_replace(base_path(), '', (new Migrator($module, $this->getLaravel()))->getPath());
 
         $this->call('migrate:status', [
-            '--path'     => $path,
+            '--path' => $path,
             '--database' => $this->option('database'),
         ]);
     }
 
-    public function getInfo(): string|null
+    public function getInfo(): ?string
     {
-        return NULL;
+        return null;
     }
 
     /**
@@ -53,7 +53,7 @@ class MigrateStatusCommand extends BaseCommand
     {
         return [
             ['direction', 'd', InputOption::VALUE_OPTIONAL, 'The direction of ordering.', 'asc'],
-            ['database', NULL, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],
         ];
     }
 }
