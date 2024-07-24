@@ -2,6 +2,7 @@
 
 namespace Nwidart\Modules\Tests\Commands\Make;
 
+use Illuminate\Support\Facades\Artisan;
 use Nwidart\Modules\Contracts\RepositoryInterface;
 use Nwidart\Modules\Tests\BaseTestCase;
 use Spatie\Snapshots\MatchesSnapshots;
@@ -27,6 +28,9 @@ class ActionMakeCommandTest extends BaseTestCase
     public function tearDown(): void
     {
         $this->app[RepositoryInterface::class]->delete('Blog');
+
+        $this->artisan('module:delete', ['module' => 'Blog', '--force' => true]);
+        echo Artisan::output();
 
         parent::tearDown();
     }
