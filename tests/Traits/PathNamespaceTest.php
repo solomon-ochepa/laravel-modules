@@ -9,43 +9,40 @@ class PathNamespaceTest extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->class = new UsePathNamespaceTrait();
     }
 
     public function test_studly_path()
     {
-        $this->assertSame('Blog/Services', $this->class->studly_path('/blog/services'));
+        $this->assertSame('Modules/Blog/App/Services/', $this->studly_path('modules/Blog/app/Services'));
     }
 
     public function test_studly_namespace()
     {
-        $this->assertSame('/blog/services', $this->class->studly_namespace('/blog/services'));
+        $this->assertSame('Modules\Blog\App\Services', $this->studly_namespace('modules/Blog/app/Services'));
     }
 
     public function test_path_namespace()
     {
-        $this->assertSame('Blog\Services', $this->class->path_namespace('/blog/services'));
+        $this->assertSame('Modules\Blog\App\Services', $this->path_namespace('modules/Blog/app/Services'));
     }
 
     public function test_module_namespace()
     {
-        $this->assertSame('Modules\Blog/services', $this->class->module_namespace('blog/services'));
+        $this->assertSame('Modules\Blog\Database\Seeder', $this->module_namespace('Blog', 'database/seeder'));
     }
 
     public function test_clean_path()
     {
-        $this->assertSame('blog/services', $this->class->clean_path('blog/services'));
-        $this->assertSame('', $this->class->clean_path(''));
+        $this->assertSame('modules/Blog/app/Services/', $this->clean_path('/modules//Blog\app\Services//'));
+        $this->assertSame('/', $this->clean_path(''));
     }
 
     public function test_app_path()
     {
-        $configPath = config('modules.paths.app_folder');
-        $configPath = rtrim($configPath, '/');
+        $config_app_path = config('modules.paths.app_folder', 'app/');
 
-        $this->assertSame($configPath, $this->class->app_path());
-        $this->assertSame($configPath, $this->class->app_path(null));
-        $this->assertSame('app/blog/services', $this->class->app_path('blog/services'));
+        $this->assertSame($config_app_path, $this->app_path());
+        $this->assertSame($config_app_path, $this->app_path(null));
+        $this->assertSame('app/Services/BlogService/', $this->app_path('Services/BlogService'));
     }
 }
