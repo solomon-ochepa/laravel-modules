@@ -21,11 +21,15 @@ class ActionMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        // $path = $this->laravel['modules']->getModulePath($this->getModuleName());
 
-        $filePath = GenerateConfigReader::read('actions')->getPath() ?? config('modules.paths.app_folder').'Actions';
+        // $filePath = GenerateConfigReader::read('actions')->getPath() ?? config('modules.paths.app_folder').'Actions';
 
-        return $path.$filePath.'/'.$this->getActionName().'.php';
+        // return $path.$filePath.'/'.$this->getActionName().'.php';
+
+        $filename = GenerateConfigReader::read('actions')->getPath() ?? $this->app_path('Actions');
+
+        return $this->module_base_path($this->getModuleName(), $filename.$this->getActionName().'.php');
     }
 
     protected function getTemplateContents(): string
