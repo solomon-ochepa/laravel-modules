@@ -23,7 +23,7 @@ class ActionMakeCommand extends GeneratorCommand
     {
         $file_path = GenerateConfigReader::read('actions')->getPath() ?? $this->app_path('Actions');
 
-        return $this->module_path($this->getModuleName(), $file_path.$this->getActionName().'.php');
+        return $this->module_app_path($this->getModuleName(), $file_path.$this->getActionName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -64,7 +64,11 @@ class ActionMakeCommand extends GeneratorCommand
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.actions.namespace', 'Actions');
+        if ($namespace = $this->path_namespace(config('modules.paths.generator.actions.namespace', ''))) {
+            return $namespace;
+        } else {
+            return $this->path_namespace($this->app_path(config('modules.paths.generator.actions.path', 'app/Actions')));
+        }
     }
 
     protected function getStubName(): string
