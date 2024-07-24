@@ -12,16 +12,12 @@ abstract class ModulesServiceProvider extends ServiceProvider
     /**
      * Booting the package.
      */
-    public function boot()
-    {
-    }
+    public function boot() {}
 
     /**
      * Register all modules.
      */
-    public function register()
-    {
-    }
+    public function register() {}
 
     /**
      * Register all modules.

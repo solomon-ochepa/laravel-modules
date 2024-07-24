@@ -205,8 +205,7 @@ class LaravelFileRepositoryTest extends BaseTestCase
 
     public function test_it_can_register_macros()
     {
-        Module::macro('registeredMacro', function () {
-        });
+        Module::macro('registeredMacro', function () {});
 
         $this->assertTrue(Module::hasMacro('registeredMacro'));
     }

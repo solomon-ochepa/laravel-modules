@@ -525,11 +525,8 @@ class ModuleGenerator extends Generator
 
     /**
      * Get array replacement for the specified stub.
-     *
-     *
-     * @return array
      */
-    protected function getReplacement($stub)
+    protected function getReplacement($stub): array
     {
         $replacements = $this->module->config('stubs.replacements');
 
@@ -550,8 +547,9 @@ class ModuleGenerator extends Generator
                 $keys[] = 'PROVIDER_NAMESPACE';
             }
         }
+
         foreach ($keys as $key) {
-            if (method_exists($this, $method = 'get'.ucfirst(Str::studly(strtolower($key))).'Replacement')) {
+            if (method_exists($this, $method = 'get'.Str::of($key)->lower()->studly().'Replacement')) {
                 $replaces[$key] = $this->$method();
             } else {
                 $replaces[$key] = null;
@@ -641,8 +639,8 @@ class ModuleGenerator extends Generator
      */
     private function getControllerNamespaceReplacement(): string
     {
-        if ($this->module->config('paths.generator.controller.namespace')) {
-            return $this->module->config('paths.generator.controller.namespace');
+        if ($namespace = $this->module->config('paths.generator.controller.namespace')) {
+            return $this->path_namespace($namespace);
         } else {
             return $this->path_namespace(ltrim($this->module->config('paths.generator.controller.path', 'app/Http/Controllers'), config('modules.paths.app_folder')));
         }
