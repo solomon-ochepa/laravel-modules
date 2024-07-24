@@ -2,13 +2,30 @@
 
 use Illuminate\Foundation\Vite;
 use Illuminate\Support\Facades\Vite as ViteFacade;
+use Nwidart\Modules\Traits\PathNamespace;
+
+final class Helper
+{
+    use PathNamespace;
+}
 
 if (! function_exists('module_path')) {
-    function module_path($name, $path = '')
+    function module_path(string $name, ?string $path = null)
     {
+        $helper = new Helper();
         $module = app('modules')->find($name);
 
-        return $module->getPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return $helper->module_path($module->name, $path);
+    }
+}
+
+if (! function_exists('module_app_path')) {
+    function module_app_path(string $name, ?string $path = null)
+    {
+        $helper = new Helper();
+        $module = app('modules')->find($name);
+
+        return $helper->module_app_path($module->name, $path);
     }
 }
 

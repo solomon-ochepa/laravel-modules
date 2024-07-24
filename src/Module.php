@@ -11,10 +11,11 @@ use Illuminate\Support\Traits\Macroable;
 use Illuminate\Translation\Translator;
 use Nwidart\Modules\Constants\ModuleEvent;
 use Nwidart\Modules\Contracts\ActivatorInterface;
+use Nwidart\Modules\Traits\PathNamespace;
 
 abstract class Module
 {
-    use Macroable;
+    use Macroable, PathNamespace;
 
     /**
      * The laravel|lumen application instance.
@@ -26,14 +27,14 @@ abstract class Module
     /**
      * The module name.
      */
-    protected $name;
+    public $name;
 
     /**
      * The module path.
      *
      * @var string
      */
-    protected $path;
+    public $path;
 
     /**
      * @var array of cached Json objects, keyed by filename
@@ -155,16 +156,6 @@ abstract class Module
     public function getPath(): string
     {
         return $this->path;
-    }
-
-    /**
-     * Get app path.
-     */
-    public function getAppPath(): string
-    {
-        $app_path = rtrim($this->getExtraPath(config('modules.paths.app_folder', '')), '/');
-
-        return is_dir($app_path) ? $app_path : $this->getPath();
     }
 
     /**
