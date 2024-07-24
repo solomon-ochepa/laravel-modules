@@ -8,30 +8,28 @@ class GeneratorPath
 {
     use PathNamespace;
 
-    private $path;
+    private string $path = '';
 
-    private $generate;
+    private bool $generate = false;
 
-    private $namespace;
+    private string $namespace = '';
 
     public function __construct($config)
     {
         if (is_array($config)) {
-            $this->path = $config['path'];
+            $this->path = $p = $this->clean_path($this->is_app_path($p = $config['path']) ? $this->app_path($p) : $p);
             $this->generate = $config['generate'];
-            $this->namespace = $config['namespace'] ?? $this->path_namespace(ltrim($config['path'], config('modules.paths.app_folder', '')));
-
-            return;
+            $this->namespace = $config['namespace'] ?? $this->path_namespace($this->is_app_path($p) ? $this->app_path($p) : $p);
+        } elseif (strlen($config)) {
+            $this->path = $p = $this->clean_path($this->is_app_path($p = $config) ? $this->app_path($p) : $p);
+            $this->generate = (bool) $config;
+            $this->namespace = $this->path_namespace($this->is_app_path($p) ? $this->app_path($p) : $p);
         }
-
-        $this->path = $config;
-        $this->generate = (bool) $config;
-        $this->namespace = $this->path_namespace(ltrim($config, config('modules.paths.app_folder', '')));
     }
 
     public function getPath()
     {
-        return $this->path;
+        return $this->clean_path($this->is_app_path($p = $this->path) ? $this->app_path($p) : $p);
     }
 
     public function generate(): bool
