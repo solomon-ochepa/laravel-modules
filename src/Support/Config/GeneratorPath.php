@@ -17,19 +17,19 @@ class GeneratorPath
     public function __construct($config)
     {
         if (is_array($config)) {
-            $this->path = $p = $this->clean_path($this->is_app_path($p = $config['path']) ? $this->app_path($p) : $p);
+            $this->path = $path = $this->check_app_path($config['path']);
             $this->generate = $config['generate'];
-            $this->namespace = $config['namespace'] ?? $this->path_namespace($this->is_app_path($p) ? $this->app_path($p) : $p);
+            $this->namespace = $config['namespace'] ?? $this->path_namespace($this->check_app_path($path));
         } elseif (strlen($config)) {
-            $this->path = $p = $this->clean_path($this->is_app_path($p = $config) ? $this->app_path($p) : $p);
+            $this->path = $path = $this->check_app_path($config);
             $this->generate = (bool) $config;
-            $this->namespace = $this->path_namespace($this->is_app_path($p) ? $this->app_path($p) : $p);
+            $this->namespace = $this->path_namespace($this->check_app_path($path));
         }
     }
 
     public function getPath()
     {
-        return $this->clean_path($this->is_app_path($p = $this->path) ? $this->app_path($p) : $p);
+        return $this->check_app_path($this->path);
     }
 
     public function generate(): bool

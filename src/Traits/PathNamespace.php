@@ -146,7 +146,7 @@ trait PathNamespace
             return $this->clean_path($path);
         }
 
-        return null;
+        return $this->clean_path($path);
     }
 
     /**
