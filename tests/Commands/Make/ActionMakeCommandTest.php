@@ -29,9 +29,6 @@ class ActionMakeCommandTest extends BaseTestCase
     {
         $this->app[RepositoryInterface::class]->delete('Blog');
 
-        $this->artisan('module:delete', ['module' => 'Blog', '--force' => true]);
-        echo Artisan::output();
-
         parent::tearDown();
     }
 
