@@ -4,10 +4,13 @@ namespace Nwidart\Modules\Tests;
 
 use Nwidart\Modules\LaravelModulesServiceProvider;
 use Nwidart\Modules\Providers\ConsoleServiceProvider;
+use Nwidart\Modules\Traits\PathNamespace;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class BaseTestCase extends OrchestraTestCase
 {
+    use PathNamespace;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -58,7 +61,7 @@ abstract class BaseTestCase extends OrchestraTestCase
             'modules' => base_path('modules'),
             'assets' => public_path('modules'),
             'migration' => base_path('database/migrations'),
-            'app_folder' => $module_config['paths']['app_folder'],
+            'app_folder' => $this->app_path(),
             'generator' => $module_config['paths']['generator'],
         ]);
 
