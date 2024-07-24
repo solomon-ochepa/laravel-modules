@@ -65,9 +65,12 @@
     }
   },
   "scripts": {
+    "snapshots": "phpunit --no-coverage -d --update-snapshots",
     "update-snapshots": "./phpunit --no-coverage -d --update-snapshots",
+    "pint": "pint",
     "lint": "pint",
     "test": "phpunit",
+    "coverage": "phpunit --coverage-html coverage",
     "test-coverage": "phpunit --coverage-html coverage",
     "pcf": "vendor/bin/php-cs-fixer fix --verbose"
   },
