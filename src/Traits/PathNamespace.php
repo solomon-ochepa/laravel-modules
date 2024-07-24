@@ -7,11 +7,39 @@ use Illuminate\Support\Str;
 trait PathNamespace
 {
     /**
-     * Get a well-formatted StudlyCase representation of path components.
+     * Format a string of path/namespace
      */
-    public function studly_path(string $path, $ds = '/'): string
+    public function clean(string $string, $ds = '/'): string
     {
-        return collect(explode($ds, $this->clean_path($path, $ds)))->map(fn ($path) => Str::studly($path))->implode($ds);
+        return Str::of($string)
+            ->replace(($ds == '/') ? '\\' : '/', $ds)
+            ->explode($ds)
+            ->reject(fn ($str) => empty($str))
+            ->implode($ds);
+    }
+
+    /**
+     * Clean namespace
+     */
+    public function clean_namespace(string $namespace, $ds = '\\'): string
+    {
+        return $this->clean($namespace, $ds);
+    }
+
+    /**
+     * Clean path
+     */
+    public function clean_path(string $path, $ds = '/'): string
+    {
+        return $this->clean($path, $ds).(Str::contains($path, '.') ? '' : $ds);
+    }
+
+    /**
+     * Get a well-formatted StudlyCase string.
+     */
+    public function studly(string $string, $ds = '/'): string
+    {
+        return Str::of($string)->explode($ds)->reject(fn ($p) => empty($p))->map(fn ($p) => Str::studly($p))->implode($ds);
     }
 
     /**
@@ -19,15 +47,15 @@ trait PathNamespace
      */
     public function studly_namespace(string $namespace, $ds = '\\'): string
     {
-        return $this->studly_path($namespace, $ds);
+        return $this->studly($this->clean_namespace($namespace, $ds), $ds);
     }
 
     /**
-     * Get a well-formatted namespace from a given path.
+     * Get a well-formatted StudlyCase representation of path components.
      */
-    public function path_namespace(string $path): string
+    public function studly_path(string $path, $ds = '/'): string
     {
-        return Str::of($this->studly_path($path))->replace('/', '\\')->trim('\\');
+        return $this->clean_path($this->studly($path, $ds), $ds);
     }
 
     /**
@@ -42,11 +70,43 @@ trait PathNamespace
     }
 
     /**
-     * Clean path
+     * Get module app path.
      */
-    public function clean_path(string $path, $ds = '/'): string
+    public function module_app_path(string $module, ?string $path = null): string
     {
-        return Str::of($path)->explode($ds)->reject(empty($path))->implode($ds);
+        return $this->module_path($module, $this->app_path($path));
+    }
+
+    /**
+     * Get module app path.
+     */
+    public function module_app_base_path(string $module, ?string $path = null): string
+    {
+        return base_path($this->module_app_path($module, $path));
+    }
+
+    /**
+     * Get a well-formatted module path.
+     */
+    public function module_path(?string $module = null, ?string $path = null): string
+    {
+        $module_path = $this->clean_path(config('modules.paths.modules', 'modules/')."/$module");
+        $module_path .= strlen($path) ? $this->clean_path($path) : '';
+
+        return $this->clean_path($module_path);
+    }
+
+    public function module_base_path(?string $module = null, ?string $path = null): string
+    {
+        return base_path($this->module_path($module, $path));
+    }
+
+    /**
+     * Get a well-formatted namespace from a given path.
+     */
+    public function path_namespace(string $path): string
+    {
+        return Str::of($this->studly_path($path))->replace('/', '\\')->trim('\\');
     }
 
     /**
@@ -54,22 +114,54 @@ trait PathNamespace
      */
     public function app_path(?string $path = null): string
     {
-        $config_path = config('modules.paths.app_folder');
-
-        // Get modules config app path or use Laravel default app path.
-        $app_path = strlen($config_path) ? $config_path : 'app/';
-
+        $default_app_path = 'app/';
+        $app_path = $this->clean_path(empty($config = config('modules.paths.app')) ? $default_app_path : $config);
         if ($path) {
-            // Replace duplicate custom|default app paths
-            $replaces = array_unique([$this->clean_path($app_path).'/', 'app/']);
-            do {
-                $path = Str::of($path)->replaceStart($app_path, '')->replaceStart('app/', '');
-            } while (Str::of($path)->startsWith($replaces));
-
-            // Append additional path
-            $app_path .= strlen($path) ? '/'.$path : '';
+            $app_path = $this->check_app_path($app_path.$path);
         }
 
         return $this->clean_path($app_path);
+    }
+
+    /**
+     * Check and update app/ path
+     */
+    public function check_app_path(string $path): ?string
+    {
+        $path = $this->clean_path($path);
+
+        $default_app_path = 'app/';
+        $app_path = $this->clean_path(empty($config = config('modules.paths.app')) ? $default_app_path : $config);
+        $replaces = array_unique([$app_path, $default_app_path]);
+
+        if (Str::startsWith($path, $replaces)) {
+            do {
+                foreach ($replaces as $replace) {
+                    $path = Str::of($path)->replaceStart($replace, '');
+                }
+            } while (Str::of($path)->startsWith($replaces));
+
+            $path = strlen($path) ? ($app_path.$path) : $app_path;
+
+            return $this->clean_path($path);
+        }
+
+        return null;
+    }
+
+    /**
+     * Tells whether the path is a regular app path
+     */
+    public function is_app_path(string $path): bool
+    {
+        return Str::startsWith($this->check_app_path($path), $this->app_path());
+    }
+
+    /**
+     * Checks whether the app directory exists
+     */
+    public function app_path_exists(?string $path = null): bool
+    {
+        return file_exists($this->app_path($path));
     }
 }
