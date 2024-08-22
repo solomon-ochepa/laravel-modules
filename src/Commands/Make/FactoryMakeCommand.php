@@ -67,7 +67,7 @@ class FactoryMakeCommand extends GeneratorCommand
     {
         $file_path = GenerateConfigReader::read('factory')->getPath() ?? 'database/factories';
 
-        return $this->module_path($this->getModuleName(), $file_path . '/' . $this->getFileName());
+        return $this->module_path($this->getModuleName(), $file_path.'/'.$this->getFileName());
     }
 
     /**

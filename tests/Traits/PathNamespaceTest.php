@@ -39,7 +39,7 @@ class PathNamespaceTest extends BaseTestCase
 
     public function test_app_path()
     {
-        $config_app_path = config('modules.paths.app_folder', 'app/');
+        $config_app_path = config('modules.paths.app', 'app/');
 
         $this->assertSame($config_app_path, $this->app_path());
         $this->assertSame($config_app_path, $this->app_path(null));
