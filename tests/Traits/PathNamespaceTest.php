@@ -34,7 +34,7 @@ class PathNamespaceTest extends BaseTestCase
     public function test_clean_path()
     {
         $this->assertSame('modules/Blog/app/Services', $this->clean_path('/modules//Blog\app\Services//'));
-        $this->assertSame('/', $this->clean_path(''));
+        $this->assertSame('', $this->clean_path('/'));
     }
 
     public function test_app_path()

@@ -72,7 +72,7 @@ class ModuleDiscoverCommandTest extends BaseTestCase
         $manifest = require $this->manifestPath;
 
         foreach ($modules as $module) {
-            $path = module_path($module).'/module.json';
+            $path = $this->test_module_path('module.json', $module);
             $provider = json_decode($this->finder->get($path))->providers[0];
 
             $this->assertContains($provider, $manifest['providers'], 'provider not found in manifest file');
