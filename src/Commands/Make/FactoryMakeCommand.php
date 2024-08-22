@@ -65,11 +65,9 @@ class FactoryMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('factory')->getPath() ?? 'database/factories';
 
-        $factoryPath = GenerateConfigReader::read('factory');
-
-        return $path.$factoryPath->getPath().'/'.$this->getFileName();
+        return $this->module_path($this->getModuleName(), $file_path . '/' . $this->getFileName());
     }
 
     /**
@@ -93,8 +91,10 @@ class FactoryMakeCommand extends GeneratorCommand
      */
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.factory.namespace')
-            ?? ltrim(config('modules.paths.generator.factory.path', 'Database/Factories'), config('modules.paths.app_folder', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.factory.namespace') ??
+            $this->path_namespace(config('modules.paths.generator.factory.path', 'database/factories'))
+        );
     }
 
     /**
@@ -102,10 +102,6 @@ class FactoryMakeCommand extends GeneratorCommand
      */
     public function getModelNamespace(): string
     {
-        $path = ltrim(config('modules.paths.generator.model.path', 'Entities'), config('modules.paths.app_folder', ''));
-
-        $path = str_replace('/', '\\', $path);
-
-        return $this->laravel['modules']->config('namespace').'\\'.$this->laravel['modules']->findOrFail($this->getModuleName()).'\\'.$path;
+        return $this->module_namespace($this->getModuleName(), config('modules.paths.generator.model.path', 'app/Models'));
     }
 }
