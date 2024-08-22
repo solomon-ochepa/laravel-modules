@@ -159,6 +159,16 @@ abstract class Module
     }
 
     /**
+     * Get app path.
+     *
+     * @deprecated use $this->app_path()
+     */
+    public function getAppPath(): string
+    {
+        return $this->app_path();
+    }
+
+    /**
      * Set path.
      *
      * @param  string  $path
