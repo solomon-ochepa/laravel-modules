@@ -31,7 +31,7 @@ trait PathNamespace
      */
     public function clean_path(string $path, $ds = '/'): string
     {
-        return $this->clean($path, $ds).(Str::contains($path, '.') ? '' : $ds);
+        return $this->clean($path, $ds);
     }
 
     /**
@@ -91,7 +91,7 @@ trait PathNamespace
     public function module_path(?string $module = null, ?string $path = null): string
     {
         $module_path = $this->clean_path(config('modules.paths.modules', 'modules/')."/$module");
-        $module_path .= strlen($path) ? $this->clean_path($path) : '';
+        $module_path .= strlen($path) ? '/'.$this->clean_path($path) : '';
 
         return $this->clean_path($module_path);
     }
@@ -115,9 +115,11 @@ trait PathNamespace
     public function app_path(?string $path = null): string
     {
         $default_app_path = 'app/';
-        $app_path = $this->clean_path(empty($config = config('modules.paths.app')) ? $default_app_path : $config);
+        $config_app_path = config('modules.paths.app', 'app/');
+        $app_path = $this->clean_path(empty($config_app_path) ? $default_app_path : $config_app_path);
+
         if ($path) {
-            $app_path = $this->check_app_path($app_path.$path);
+            $app_path = $this->check_app_path($app_path.'/'.$path);
         }
 
         return $this->clean_path($app_path);
@@ -131,17 +133,18 @@ trait PathNamespace
         $path = $this->clean_path($path);
 
         $default_app_path = 'app/';
-        $app_path = $this->clean_path(empty($config = config('modules.paths.app')) ? $default_app_path : $config);
+        $config_app_path = config('modules.paths.app', 'app/');
+        $app_path = $this->clean_path(empty($config_app_path) ? $default_app_path : $config_app_path);
         $replaces = array_unique([$app_path, $default_app_path]);
 
         if (Str::startsWith($path, $replaces)) {
             do {
                 foreach ($replaces as $replace) {
-                    $path = Str::of($path)->replaceStart($replace, '');
+                    $path = Str::of($path)->replaceStart($replace, '')->ltrim('/');
                 }
             } while (Str::of($path)->startsWith($replaces));
 
-            $path = strlen($path) ? ($app_path.$path) : $app_path;
+            $path = strlen($path) ? ($app_path.'/'.$path) : $app_path;
 
             return $this->clean_path($path);
         }
