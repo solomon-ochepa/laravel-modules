@@ -80,16 +80,6 @@ abstract class BaseTestCase extends OrchestraTestCase
         return $this->artisan('module:make', ['name' => [$moduleName]]);
     }
 
-    protected function get_module_app_path(?string $path = null, string $module = 'Blog'): string
-    {
-        return $this->module_app_path($module, $path);
-    }
-
-    protected function get_module_path(?string $path = null, string $module = 'Blog'): string
-    {
-        return $this->module_path($module, $path);
-    }
-
     protected function getModuleAppPath(string $moduleName = 'Blog'): string
     {
         return base_path("modules/$moduleName/").rtrim(config('modules.paths.app_folder'), '/');
@@ -98,5 +88,21 @@ abstract class BaseTestCase extends OrchestraTestCase
     protected function getModuleBasePath(string $moduleName = 'Blog'): string
     {
         return base_path("modules/$moduleName");
+    }
+
+    /**
+     * Get the test module's `app/` path.
+     */
+    protected function test_module_app_path(?string $path = null, string $module = 'Blog'): string
+    {
+        return $this->module_app_path($module, $path);
+    }
+
+    /**
+     * Get the test module's root path.
+     */
+    protected function test_module_path(?string $path = null, string $module = 'Blog'): string
+    {
+        return $this->module_path($module, $path);
     }
 }
