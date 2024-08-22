@@ -23,7 +23,7 @@ class ActionMakeCommand extends GeneratorCommand
     {
         $file_path = GenerateConfigReader::read('actions')->getPath() ?? $this->app_path('Actions');
 
-        return $this->module_app_path($this->getModuleName(), $file_path.$this->getActionName().'.php');
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getActionName().'.php');
     }
 
     protected function getTemplateContents(): string
