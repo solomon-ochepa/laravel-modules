@@ -13,7 +13,7 @@ class PathNamespaceTest extends BaseTestCase
 
     public function test_studly_path()
     {
-        $this->assertSame('Modules/Blog/App/Services/', $this->studly_path('modules/Blog/app/Services'));
+        $this->assertSame('Modules/Blog/App/Services', $this->studly_path('modules/Blog/app/Services'));
     }
 
     public function test_studly_namespace()
@@ -33,7 +33,7 @@ class PathNamespaceTest extends BaseTestCase
 
     public function test_clean_path()
     {
-        $this->assertSame('modules/Blog/app/Services/', $this->clean_path('/modules//Blog\app\Services//'));
+        $this->assertSame('modules/Blog/app/Services', $this->clean_path('/modules//Blog\app\Services//'));
         $this->assertSame('/', $this->clean_path(''));
     }
 
@@ -43,6 +43,6 @@ class PathNamespaceTest extends BaseTestCase
 
         $this->assertSame($config_app_path, $this->app_path());
         $this->assertSame($config_app_path, $this->app_path(null));
-        $this->assertSame('app/Services/BlogService/', $this->app_path('Services/BlogService'));
+        $this->assertSame('app/Services/BlogService', $this->app_path('Services/BlogService'));
     }
 }
