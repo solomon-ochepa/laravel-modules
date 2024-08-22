@@ -594,7 +594,7 @@ class ModuleGenerator extends Generator
      */
     protected function getAppPathReplacement(): string
     {
-        return $this->app_path();
+        return $this->app_path().'/';
     }
 
     /**
