@@ -78,7 +78,9 @@ class ModuleMakeCommandTest extends BaseTestCase
             $path = base_path('modules/Blog').'/'.$file;
             $this->assertTrue($this->finder->exists($path), "[$file] does not exists");
         }
+
         $path = base_path('modules/Blog').'/module.json';
+
         $this->assertTrue($this->finder->exists($path), '[module.json] does not exists');
         $this->assertMatchesSnapshot($this->finder->get($path));
         $this->assertSame(0, $code);
