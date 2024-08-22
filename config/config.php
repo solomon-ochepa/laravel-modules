@@ -54,7 +54,8 @@ return [
                 'AUTHOR_EMAIL',
                 'MODULE_NAMESPACE',
                 'PROVIDER_NAMESPACE',
-                'APP_FOLDER_NAME',
+                'APP_PATH',
+                'APP_NAMESPACE',
             ],
         ],
         'gitkeep' => true,
@@ -100,7 +101,7 @@ return [
         | app folder name
         | for example can change it to 'src' or 'App'
         */
-        'app_folder' => 'app/',
+        'app' => 'app/',
 
         /*
         |--------------------------------------------------------------------------

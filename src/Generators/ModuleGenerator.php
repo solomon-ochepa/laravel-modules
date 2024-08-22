@@ -466,8 +466,8 @@ class ModuleGenerator extends Generator
     {
         $replacements = $this->module->config('stubs.replacements');
 
-        if (! isset($replacements['composer']['APP_FOLDER_NAME'])) {
-            $replacements['composer'][] = 'APP_FOLDER_NAME';
+        if (! isset($replacements['composer']['APP_PATH'])) {
+            $replacements['composer'][] = 'APP_PATH';
         }
 
         if (! isset($replacements[$stub])) {
@@ -569,7 +569,7 @@ class ModuleGenerator extends Generator
         if ($this->module->config('paths.generator.controller.namespace')) {
             return $this->module->config('paths.generator.controller.namespace');
         } else {
-            return $this->path_namespace(ltrim($this->module->config('paths.generator.controller.path', 'app/Http/Controllers'), config('modules.paths.app_folder')));
+            return $this->path_namespace(ltrim($this->module->config('paths.generator.controller.path', 'app/Http/Controllers'), config('modules.paths.app')));
         }
     }
 
@@ -590,11 +590,19 @@ class ModuleGenerator extends Generator
     }
 
     /**
-     * Get replacement for $APP_FOLDER_NAME$.
+     * Get replacement for $APP_PATH$.
      */
-    protected function getAppFolderNameReplacement(): string
+    protected function getAppPathReplacement(): string
     {
-        return $this->module->config('paths.app_folder');
+        return $this->app_path();
+    }
+
+    /**
+     * Get replacement for $APP_NAMESPACE$.
+     */
+    protected function getAppNamespaceReplacement(): string
+    {
+        return $this->path_namespace($this->app_path());
     }
 
     protected function getProviderNamespaceReplacement(): string
