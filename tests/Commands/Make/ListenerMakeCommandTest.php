@@ -13,12 +13,12 @@ class ListenerMakeCommandTest extends BaseTestCase
     /**
      * @var \Illuminate\Filesystem\Filesystem
      */
-    private $finder;
+    private $files;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->finder = $this->app['files'];
+        $this->files = $this->app['files'];
         $this->createModule();
     }
 
@@ -46,7 +46,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog', '--event' => 'UserWasCreated']
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -59,7 +59,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog', '--event' => 'User/WasCreated']
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -72,7 +72,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog']
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -85,7 +85,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog', '--event' => 'UserWasCreated', '--queued' => true]
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -98,7 +98,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog', '--event' => 'User/WasCreated', '--queued' => true]
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -111,7 +111,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog', '--queued' => true]
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -126,7 +126,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog']
         );
 
-        $file = $this->finder->get($this->module_path('Events/Handlers/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->module_path('Events/Handlers/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);
@@ -141,7 +141,7 @@ class ListenerMakeCommandTest extends BaseTestCase
             ['name' => 'NotifyUsersOfANewPost', 'module' => 'Blog']
         );
 
-        $file = $this->finder->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
+        $file = $this->files->get($this->test_module_app_path('Listeners/NotifyUsersOfANewPost.php'));
 
         $this->assertMatchesSnapshot($file);
         $this->assertSame(0, $code);

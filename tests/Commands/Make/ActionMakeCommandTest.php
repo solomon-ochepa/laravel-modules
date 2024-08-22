@@ -53,7 +53,7 @@ class ActionMakeCommandTest extends BaseTestCase
     {
         $code = $this->artisan('module:make-action', ['name' => 'MyAction', 'module' => 'Blog', '--invokable' => true]);
 
-        $this->assertTrue(is_file($this->test_module_app_path('Actions/MyAction.php')));
+        $this->assertTrue(is_file(module_app_path('Blog', 'Actions/MyAction.php')));
         $this->assertSame(0, $code);
     }
 
