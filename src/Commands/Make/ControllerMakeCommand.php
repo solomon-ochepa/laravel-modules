@@ -41,11 +41,9 @@ class ControllerMakeCommand extends GeneratorCommand
      */
     public function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('controller')->getPath() ?? $this->app_path('Http/Controllers');
 
-        $controllerPath = GenerateConfigReader::read('controller');
-
-        return $path.$controllerPath->getPath().'/'.$this->getControllerName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**
@@ -57,7 +55,7 @@ class ControllerMakeCommand extends GeneratorCommand
 
         return (new Stub($this->getStubName(), [
             'MODULENAME' => $module->getStudlyName(),
-            'CONTROLLERNAME' => $this->getControllerName(),
+            'CONTROLLERNAME' => $this->getFileName(),
             'NAMESPACE' => $module->getStudlyName(),
             'CLASS_NAMESPACE' => $this->getClassNamespace($module),
             'CLASS' => $this->getControllerNameWithoutNamespace(),
@@ -97,7 +95,7 @@ class ControllerMakeCommand extends GeneratorCommand
     /**
      * @return array|string
      */
-    protected function getControllerName()
+    protected function getFileName()
     {
         $controller = Str::studly($this->argument('controller'));
 
@@ -113,13 +111,15 @@ class ControllerMakeCommand extends GeneratorCommand
      */
     private function getControllerNameWithoutNamespace()
     {
-        return class_basename($this->getControllerName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.controller.namespace')
-        ?? ltrim(config('modules.paths.generator.controller.path', 'Http/Controllers'), config('modules.paths.app'));
+        return $this->path_namespace(
+            config('modules.paths.generator.controller.namespace') ??
+            $this->app_path(config('modules.paths.generator.controller.path', 'app/Http/Controllers'))
+        );
     }
 
     /**

@@ -95,7 +95,7 @@ abstract class BaseTestCase extends OrchestraTestCase
      */
     protected function test_module_app_path(?string $path = null, string $module = 'Blog'): string
     {
-        return $this->module_app_path($module, $path);
+        return base_path($this->module_app_path($module, $path));
     }
 
     /**
@@ -103,6 +103,6 @@ abstract class BaseTestCase extends OrchestraTestCase
      */
     protected function test_module_path(?string $path = null, string $module = 'Blog'): string
     {
-        return $this->module_path($module, $path);
+        return base_path($this->module_path($module, $path));
     }
 }

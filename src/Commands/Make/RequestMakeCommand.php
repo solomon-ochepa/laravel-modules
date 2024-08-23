@@ -35,8 +35,10 @@ class RequestMakeCommand extends GeneratorCommand
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.request.namespace')
-        ?? ltrim(config('modules.paths.generator.request.path', 'Http/Requests'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.request.namespace') ??
+            $this->app_path(config('modules.paths.generator.request.path', 'app/Http/Requests'))
+        );
     }
 
     /**
@@ -70,11 +72,9 @@ class RequestMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('request')->getPath() ?? $this->app_path('Http/Requests');
 
-        $requestPath = GenerateConfigReader::read('request');
-
-        return $path.$requestPath->getPath().'/'.$this->getFileName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**

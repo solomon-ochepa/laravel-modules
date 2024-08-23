@@ -119,7 +119,7 @@ class ModelMakeCommand extends GeneratorCommand
     private function handleOptionalControllerOption()
     {
         if ($this->option('controller') === true) {
-            $controllerName = "{$this->getModelName()}Controller";
+            $controllerName = "{$this->getFileName()}Controller";
 
             $this->call('module:make-controller', array_filter([
                 'controller' => $controllerName,
@@ -136,7 +136,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function handleOptionalSeedOption()
     {
         if ($this->option('seed') === true) {
-            $seedName = "{$this->getModelName()}Seeder";
+            $seedName = "{$this->getFileName()}Seeder";
 
             $this->call('module:make-seed', array_filter([
                 'name' => $seedName,
@@ -154,7 +154,7 @@ class ModelMakeCommand extends GeneratorCommand
     {
         if ($this->option('factory') === true) {
             $this->call('module:make-factory', array_filter([
-                'name' => $this->getModelName(),
+                'name' => $this->getFileName(),
                 'module' => $this->argument('module'),
             ]));
         }
@@ -168,7 +168,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function handleOptionalRequestOption()
     {
         if ($this->option('request') === true) {
-            $requestName = "{$this->getModelName()}Request";
+            $requestName = "{$this->getFileName()}Request";
 
             $this->call('module:make-request', array_filter([
                 'name' => $requestName,
@@ -185,7 +185,7 @@ class ModelMakeCommand extends GeneratorCommand
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
 
         return (new Stub('/model.stub', [
-            'NAME' => $this->getModelName(),
+            'NAME' => $this->getFileName(),
             'FILLABLE' => $this->getFillable(),
             'NAMESPACE' => $this->getClassNamespace($module),
             'CLASS' => $this->getClass(),
@@ -201,17 +201,15 @@ class ModelMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('model')->getPath() ?? $this->app_path('Models');
 
-        $modelPath = GenerateConfigReader::read('model');
-
-        return $path.$modelPath->getPath().'/'.$this->getModelName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**
      * @return mixed|string
      */
-    private function getModelName()
+    private function getFileName()
     {
         return Str::studly($this->argument('model'));
     }
@@ -237,7 +235,9 @@ class ModelMakeCommand extends GeneratorCommand
      */
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.model.namespace')
-        ?? ltrim(config('modules.paths.generator.model.path', 'Models'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.model.namespace') ??
+            $this->app_path(config('modules.paths.generator.model.path', 'app/Models'))
+        );
     }
 }

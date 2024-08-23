@@ -21,11 +21,9 @@ class HelperMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('helpers')->getPath() ?? $this->app_path('Helpers');
 
-        $filePath = GenerateConfigReader::read('helpers')->getPath() ?? config('modules.paths.app').'Helpers';
-
-        return $path.$filePath.'/'.$this->getHelperName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -54,19 +52,22 @@ class HelperMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getHelperName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getHelperName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.helpers.namespace', 'Helpers');
+        return $this->path_namespace(
+            config('modules.paths.generator.helpers.namespace') ??
+            $this->app_path(config('modules.paths.generator.helpers.path', 'app/Helpers'))
+        );
     }
 
     protected function getStubName(): string

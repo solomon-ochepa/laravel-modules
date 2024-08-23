@@ -94,11 +94,9 @@ class ObserverMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('observer')->getPath() ?? $this->app_path('Observers');
 
-        $observerPath = GenerateConfigReader::read('observer');
-
-        return $path.$observerPath->getPath().'/'.$this->getFileName();
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**
@@ -123,7 +121,9 @@ class ObserverMakeCommand extends GeneratorCommand
      */
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.observer.namespace')
-        ?? ltrim(config('modules.paths.generator.observer.path', 'Observers'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.observer.namespace') ??
+            $this->app_path(config('modules.paths.generator.observer.path', 'app/Observers'))
+        );
     }
 }

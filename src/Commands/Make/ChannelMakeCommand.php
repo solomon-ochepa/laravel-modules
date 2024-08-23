@@ -30,8 +30,10 @@ final class ChannelMakeCommand extends GeneratorCommand
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.channels.namespace')
-        ?? ltrim(config('modules.paths.generator.channels.path', 'Broadcasting'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.channels.namespace') ??
+            $this->app_path(config('modules.paths.generator.channels.path', 'app/Broadcasting'))
+        );
     }
 
     /**
@@ -56,11 +58,9 @@ final class ChannelMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('channels')->getPath() ?? $this->app_path('Broadcasting');
 
-        $channelPath = GenerateConfigReader::read('channels');
-
-        return $path.$channelPath->getPath().'/'.$this->getFileName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**

@@ -55,8 +55,10 @@ class ComponentClassMakeCommand extends GeneratorCommand
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.component-class.namespace')
-        ?? ltrim(config('modules.paths.generator.component-class.path', 'View/Component'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.component-class.namespace') ??
+            $this->app_path(config('modules.paths.generator.component-class.path', 'app/View/Component'))
+        );
     }
 
     /**
@@ -92,10 +94,9 @@ class ComponentClassMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
-        $factoryPath = GenerateConfigReader::read('component-class');
+        $file_path = GenerateConfigReader::read('component-class')->getPath() ?? $this->app_path('View/Components');
 
-        return $path.$factoryPath->getPath().'/'.$this->getFileName();
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName());
     }
 
     /**

@@ -21,11 +21,9 @@ class EventProviderMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('provider')->getPath() ?? $this->app_path('Providers');
 
-        $filePath = GenerateConfigReader::read('provider')->getPath();
-
-        return $path.$filePath.'/'.$this->getEventServiceProviderName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -52,20 +50,22 @@ class EventProviderMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getEventServiceProviderName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly('EventServiceProvider');
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getEventServiceProviderName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.provider.namespace')
-        ?? ltrim(config('modules.paths.generator.provider.path', 'Providers'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.provider.namespace') ??
+            $this->app_path(config('modules.paths.generator.provider.path', 'app/Providers'))
+        );
     }
 
     protected function getStubName(): string

@@ -21,11 +21,9 @@ class TraitMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('traits')->getPath() ?? $this->app_path('Traits');
 
-        $filePath = GenerateConfigReader::read('traits')->getPath() ?? config('modules.paths.app').'Traits';
-
-        return $path.$filePath.'/'.$this->getTraitName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -53,19 +51,22 @@ class TraitMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getTraitName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getTraitName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.traits.namespace', 'Traits');
+        return $this->path_namespace(
+            config('modules.paths.generator.traits.namespace') ??
+            $this->app_path(config('modules.paths.generator.traits.path', 'app/Traits'))
+        );
     }
 
     protected function getStubName(): string

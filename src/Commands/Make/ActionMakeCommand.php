@@ -19,13 +19,6 @@ class ActionMakeCommand extends GeneratorCommand
 
     protected $description = 'Create a new action class for the specified module.';
 
-    public function getDestinationFilePath(): string
-    {
-        $file_path = GenerateConfigReader::read('actions')->getPath() ?? $this->app_path('Actions');
-
-        return $this->module_app_path($this->getModuleName(), $file_path . '/' . $this->getFileName() . '.php');
-    }
-
     protected function getTemplateContents(): string
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
@@ -60,6 +53,13 @@ class ActionMakeCommand extends GeneratorCommand
     private function getClassNameWithoutNamespace(): array|string
     {
         return class_basename($this->getFileName());
+    }
+
+    public function getDestinationFilePath(): string
+    {
+        $file_path = GenerateConfigReader::read('actions')->getPath() ?? $this->app_path('Actions');
+
+        return $this->module_app_path($this->getModuleName(), $file_path . '/' . $this->getFileName() . '.php');
     }
 
     public function getDefaultNamespace(): string

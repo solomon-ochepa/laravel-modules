@@ -21,11 +21,9 @@ class EnumMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('enums')->getPath() ?? $this->app_path('Enums');
 
-        $filePath = GenerateConfigReader::read('enums')->getPath() ?? config('modules.paths.app').'Enums';
-
-        return $path.$filePath.'/'.$this->getEnumName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -53,19 +51,22 @@ class EnumMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getEnumName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getEnumName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.enums.namespace', 'Enums');
+        return $this->path_namespace(
+            config('modules.paths.generator.enums.namespace') ??
+            $this->app_path(config('modules.paths.generator.enums.path', 'app/Enums'))
+        );
     }
 
     protected function getStubName(): string

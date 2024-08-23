@@ -21,11 +21,9 @@ class ExceptionMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('exceptions')->getPath() ?? $this->app_path('Exceptions');
 
-        $filePath = GenerateConfigReader::read('exceptions')->getPath() ?? config('modules.paths.app').'Exceptions';
-
-        return $path.$filePath.'/'.$this->getExceptionName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -55,19 +53,22 @@ class ExceptionMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getExceptionName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getExceptionName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.exceptions.namespace', 'Exceptions');
+        return $this->path_namespace(
+            config('modules.paths.generator.exceptions.namespace') ??
+            $this->app_path(config('modules.paths.generator.exceptions.path', 'app/Exceptions'))
+        );
     }
 
     protected function getStubName(): string

@@ -30,8 +30,10 @@ final class NotificationMakeCommand extends GeneratorCommand
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.notifications.namespace')
-        ?? ltrim(config('modules.paths.generator.notifications.path', 'Notifications'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.notifications.namespace') ??
+            $this->app_path(config('modules.paths.generator.notifications.path', 'app/Notifications'))
+        );
     }
 
     /**
@@ -56,11 +58,9 @@ final class NotificationMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('notifications')->getPath() ?? $this->app_path('Notifications');
 
-        $notificationPath = GenerateConfigReader::read('notifications');
-
-        return $path.$notificationPath->getPath().'/'.$this->getFileName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**

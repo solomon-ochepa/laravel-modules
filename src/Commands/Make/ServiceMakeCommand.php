@@ -21,11 +21,9 @@ class ServiceMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('services')->getPath() ?? $this->app_path('Services');
 
-        $filePath = GenerateConfigReader::read('services')->getPath() ?? config('modules.paths.app').'Services';
-
-        return $path.$filePath.'/'.$this->getServiceName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -54,19 +52,22 @@ class ServiceMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getServiceName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getServiceName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.services.namespace', 'Services');
+        return $this->path_namespace(
+            config('modules.paths.generator.services.namespace') ??
+            $this->app_path(config('modules.paths.generator.services.path', 'app/Services'))
+        );
     }
 
     protected function getStubName(): string

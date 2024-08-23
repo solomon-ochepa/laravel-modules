@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Nwidart\Modules\Constants\ModuleEvent;
 use Nwidart\Modules\Contracts\ActivatorInterface;
-use Nwidart\Modules\FileRepository;
 use Nwidart\Modules\Module;
 use Nwidart\Modules\Support\Config\GenerateConfigReader;
 use Nwidart\Modules\Support\Stub;
@@ -21,40 +20,9 @@ class ModuleGenerator extends Generator
     use PathNamespace;
 
     /**
-     * The module name will created.
-     */
-    protected ?string $name = null;
-
-    /**
-     * The laravel config instance.
-     */
-    protected ?Config $config = null;
-
-    /**
-     * The laravel filesystem instance.
-     */
-    protected ?Filesystem $filesystem = null;
-
-    /**
-     * The laravel console instance.
-     */
-    protected ?Console $console = null;
-
-    /**
      * The laravel component Factory instance.
      */
     protected ?Factory $component = null;
-
-    /**
-     * The activator instance
-     */
-    protected ?ActivatorInterface $activator = null;
-
-    /**
-     * The module instance.
-     */
-    /*?Module*/
-    protected mixed $module = null;
 
     /**
      * Force status.
@@ -87,19 +55,14 @@ class ModuleGenerator extends Generator
      * The constructor.
      */
     public function __construct(
-        $name,
-        ?FileRepository $module = null,
-        ?Config $config = null,
-        ?Filesystem $filesystem = null,
-        ?Console $console = null,
-        ?ActivatorInterface $activator = null
+        protected $name,
+        protected mixed $module = null,
+        protected ?Config $config = null,
+        protected ?Filesystem $filesystem = null,
+        protected ?Console $console = null,
+        protected ?ActivatorInterface $activator = null
     ) {
-        $this->name = $name;
-        $this->config = $config;
-        $this->filesystem = $filesystem;
-        $this->console = $console;
-        $this->module = $module;
-        $this->activator = $activator;
+        //
     }
 
     /**
@@ -289,19 +252,18 @@ class ModuleGenerator extends Generator
                 return E_ERROR;
             }
         }
+
         $this->component->info("Creating module: [$name]");
 
         $this->generateFolders();
 
         $this->generateModuleJsonFile();
 
-        if ($this->type !== 'plain') {
-            $this->generateFiles();
-            $this->generateResources();
-        }
-
         if ($this->type === 'plain') {
             $this->cleanModuleJsonFile();
+        } else {
+            $this->generateFiles();
+            $this->generateResources();
         }
 
         $this->activator->setActiveByName($name, $this->isActive);
@@ -558,7 +520,7 @@ class ModuleGenerator extends Generator
      */
     protected function getModuleNamespaceReplacement(): string
     {
-        return str_replace('\\', '\\\\', $this->module->config('namespace') ?? $this->path_namespace($this->module->config('paths.modules')));
+        return Str::of($this->path_namespace($this->module->config('paths.modules')))->replace('\\', '\\\\');
     }
 
     /**
@@ -566,11 +528,10 @@ class ModuleGenerator extends Generator
      */
     private function getControllerNamespaceReplacement(): string
     {
-        if ($this->module->config('paths.generator.controller.namespace')) {
-            return $this->module->config('paths.generator.controller.namespace');
-        } else {
-            return $this->path_namespace(ltrim($this->module->config('paths.generator.controller.path', 'app/Http/Controllers'), config('modules.paths.app')));
-        }
+        return $this->path_namespace(
+            config('modules.paths.generator.controller.namespace') ??
+            $this->app_path(config('modules.paths.generator.controller.path', 'app/Http/Controllers'))
+        );
     }
 
     /**
@@ -607,7 +568,7 @@ class ModuleGenerator extends Generator
 
     protected function getProviderNamespaceReplacement(): string
     {
-        return str_replace('\\', '\\\\', GenerateConfigReader::read('provider')->getNamespace());
+        return Str::of(GenerateConfigReader::read('provider')->getNamespace())->replace('\\', '\\\\');
     }
 
     /**

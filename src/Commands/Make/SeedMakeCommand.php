@@ -58,7 +58,7 @@ class SeedMakeCommand extends GeneratorCommand
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
 
         return (new Stub('/seeder.stub', [
-            'NAME' => $this->getSeederName(),
+            'NAME' => $this->getFileName(),
             'MODULE' => $this->getModuleName(),
             'NAMESPACE' => $this->getClassNamespace($module),
 
@@ -67,19 +67,15 @@ class SeedMakeCommand extends GeneratorCommand
 
     protected function getDestinationFilePath(): mixed
     {
-        $this->clearCache();
+        $file_path = GenerateConfigReader::read('seeder')->getPath() ?? 'database/seeders';
 
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
-
-        $seederPath = GenerateConfigReader::read('seeder');
-
-        return $path.$seederPath->getPath().'/'.$this->getSeederName().'.php';
+        return $this->module_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**
      * Get the seeder name.
      */
-    private function getSeederName(): string
+    private function getFileName(): string
     {
         $string = $this->argument('name');
         $string .= $this->option('master') ? 'Database' : '';
@@ -97,7 +93,9 @@ class SeedMakeCommand extends GeneratorCommand
      */
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.seeder.namespace')
-        ?? ltrim(config('modules.paths.generator.seeder.path', 'Database/Seeders'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.seeder.namespace') ??
+            $this->clean_path(config('modules.paths.generator.seeder.path', 'database/seeders'))
+        );
     }
 }

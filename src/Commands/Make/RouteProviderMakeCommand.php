@@ -83,11 +83,9 @@ class RouteProviderMakeCommand extends GeneratorCommand
      */
     protected function getDestinationFilePath()
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('provider')->getPath() ?? $this->app_path('Providers');
 
-        $generatorPath = GenerateConfigReader::read('provider');
-
-        return $path.$generatorPath->getPath().'/'.$this->getFileName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     /**
@@ -95,7 +93,7 @@ class RouteProviderMakeCommand extends GeneratorCommand
      */
     protected function getWebRoutesPath()
     {
-        return '/'.$this->laravel['modules']->config('stubs.files.routes/web', 'Routes/web.php');
+        return '/'.$this->laravel['modules']->config('stubs.files.routes/web', 'routes/web.php');
     }
 
     /**
@@ -103,19 +101,22 @@ class RouteProviderMakeCommand extends GeneratorCommand
      */
     protected function getApiRoutesPath()
     {
-        return '/'.$this->laravel['modules']->config('stubs.files.routes/api', 'Routes/api.php');
+        return '/'.$this->laravel['modules']->config('stubs.files.routes/api', 'routes/api.php');
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.provider.namespace')
-        ?? ltrim(config('modules.paths.generator.provider.path', 'Providers'), config('modules.paths.app', ''));
+        return $this->path_namespace(
+            config('modules.paths.generator.provider.namespace') ??
+            $this->app_path(config('modules.paths.generator.provider.path', 'app/Providers'))
+        );
     }
 
     private function getControllerNameSpace(): string
     {
-        $module = $this->laravel['modules'];
-
-        return str_replace('/', '\\', $module->config('paths.generator.controller.namespace') ?: $module->config('paths.generator.controller.path', 'Controller'));
+        return $this->path_namespace(
+            config('modules.paths.generator.controller.namespace') ??
+            $this->app_path(config('modules.paths.generator.controller.path', 'app/Http/Controllers'))
+        );
     }
 }

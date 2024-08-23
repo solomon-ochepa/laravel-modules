@@ -21,11 +21,9 @@ class InterfaceMakeCommand extends GeneratorCommand
 
     public function getDestinationFilePath(): string
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $file_path = GenerateConfigReader::read('interfaces')->getPath() ?? $this->app_path('Interfaces');
 
-        $filePath = GenerateConfigReader::read('interfaces')->getPath() ?? config('modules.paths.app').'Interfaces';
-
-        return $path.$filePath.'/'.$this->getInterfaceName().'.php';
+        return $this->module_app_path($this->getModuleName(), $file_path.'/'.$this->getFileName().'.php');
     }
 
     protected function getTemplateContents(): string
@@ -53,19 +51,22 @@ class InterfaceMakeCommand extends GeneratorCommand
         ];
     }
 
-    protected function getInterfaceName(): array|string
+    protected function getFileName(): array|string
     {
         return Str::studly($this->argument('name'));
     }
 
     private function getClassNameWithoutNamespace(): array|string
     {
-        return class_basename($this->getInterfaceName());
+        return class_basename($this->getFileName());
     }
 
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.interfaces.namespace', 'Interfaces');
+        return $this->path_namespace(
+            config('modules.paths.generator.interfaces.namespace') ??
+            $this->app_path(config('modules.paths.generator.interfaces.path', 'app/Interfaces'))
+        );
     }
 
     protected function getStubName(): string
