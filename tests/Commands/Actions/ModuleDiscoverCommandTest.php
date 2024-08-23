@@ -79,6 +79,4 @@ class ModuleDiscoverCommandTest extends BaseTestCase
             $this->assertContains($provider, $manifest['eager'], 'provider not found in manifest file');
         }
     }
-
-
 }

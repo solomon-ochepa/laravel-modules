@@ -2,7 +2,6 @@
 
 namespace Nwidart\Modules\Tests\Commands\Make;
 
-use Illuminate\Support\Facades\Artisan;
 use Nwidart\Modules\Contracts\RepositoryInterface;
 use Nwidart\Modules\Tests\BaseTestCase;
 use Spatie\Snapshots\MatchesSnapshots;

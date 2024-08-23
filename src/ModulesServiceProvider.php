@@ -30,7 +30,7 @@ abstract class ModulesServiceProvider extends ServiceProvider
 
         $providers = app()->make(ModuleManifest::class)->providersArray();
 
-        (new ProviderRepository($this->app, new Filesystem(), $this->getCachedModulePath()))
+        (new ProviderRepository($this->app, new Filesystem, $this->getCachedModulePath()))
             ->load($providers);
 
     }
