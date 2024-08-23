@@ -289,7 +289,7 @@ class ModuleGenerator extends Generator
                 continue;
             }
 
-            $path = $this->module->getModulePath($this->getName()).'/'.$folder->getPath();
+            $path = $this->clean_path($this->module->getModulePath($this->getName()).'/'.$folder->getPath());
 
             $this->filesystem->ensureDirectoryExists($path, 0755, true);
             if (config('modules.stubs.gitkeep')) {
@@ -312,7 +312,7 @@ class ModuleGenerator extends Generator
     public function generateFiles()
     {
         foreach ($this->getFiles() as $stub => $file) {
-            $path = $this->module->getModulePath($this->getName()).$file;
+            $path = $this->clean_path($this->module->getModulePath($this->getName()).'/'.$file);
 
             $this->component->task("Generating file {$path}", function () use ($stub, $path) {
                 if (! $this->filesystem->isDirectory($dir = dirname($path))) {
@@ -329,6 +329,8 @@ class ModuleGenerator extends Generator
      */
     public function generateResources()
     {
+        $ds = DIRECTORY_SEPARATOR;
+
         if (GenerateConfigReader::read('seeder')->generate() === true) {
             $this->console->call('module:make-seed', [
                 'name' => $this->getName(),
@@ -346,7 +348,7 @@ class ModuleGenerator extends Generator
             ]);
         } else {
             // delete register ServiceProvider on module.json
-            $path = $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.'module.json';
+            $path = $this->clean_path($this->module->getModulePath($this->getName()).$ds.'module.json');
             $module_file = $this->filesystem->get($path);
             $this->filesystem->put(
                 $path,
@@ -368,7 +370,7 @@ class ModuleGenerator extends Generator
                 $this->filesystem->replaceInFile(
                     '$this->app->register(Event',
                     '// $this->app->register(Event',
-                    $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.$providerGenerator->getPath().DIRECTORY_SEPARATOR.sprintf('%sServiceProvider.php', $this->getName())
+                    $this->clean_path($this->module->getModulePath($this->getName()).$ds.$providerGenerator->getPath().$ds.sprintf('%sServiceProvider.php', $this->getName()))
                 );
             }
         }
@@ -387,7 +389,7 @@ class ModuleGenerator extends Generator
                 $this->filesystem->replaceInFile(
                     '$this->app->register(Route',
                     '// $this->app->register(Route',
-                    $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.$providerGenerator->getPath().DIRECTORY_SEPARATOR.sprintf('%sServiceProvider.php', $this->getName())
+                    $this->clean_path($this->module->getModulePath($this->getName()).$ds.$providerGenerator->getPath().$ds.sprintf('%sServiceProvider.php', $this->getName()))
                 );
             }
         }
@@ -461,7 +463,7 @@ class ModuleGenerator extends Generator
      */
     private function generateModuleJsonFile()
     {
-        $path = $this->module->getModulePath($this->getName()).'module.json';
+        $path = $this->clean_path($this->module->getModulePath($this->getName()).'/'.'module.json');
 
         $this->component->task("Generating file $path", function () use ($path) {
             if (! $this->filesystem->isDirectory($dir = dirname($path))) {
@@ -478,7 +480,7 @@ class ModuleGenerator extends Generator
      */
     private function cleanModuleJsonFile()
     {
-        $path = $this->module->getModulePath($this->getName()).'module.json';
+        $path = $this->clean_path($this->module->getModulePath($this->getName()).'/'.'module.json');
 
         $content = $this->filesystem->get($path);
         $namespace = $this->getModuleNamespaceReplacement();
