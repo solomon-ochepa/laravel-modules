@@ -7,36 +7,55 @@ use Illuminate\Support\Str;
 trait PathNamespace
 {
     /**
-     * Get a well-formatted StudlyCase representation of path components.
+     * Get well-formatted StudlyCase path(s).
      */
-    public function studly_path(string $path, $ds = '/'): string
+    public function studly_path(string ...$path): string
     {
-        return collect(explode($ds, $this->clean_path($path, $ds)))->map(fn ($path) => Str::studly($path))->implode($ds);
+        $ds = DIRECTORY_SEPARATOR;
+
+        return collect(explode($ds, implode($ds, $path)))
+            ->map(fn ($path) => Str::studly($path))
+            ->implode($ds);
     }
 
     /**
-     * Get a well-formatted StudlyCase namespace.
+     * Get well-formatted StudlyCase namespace(s).
      */
-    public function studly_namespace(string $namespace, $ds = '\\'): string
+    public function studly_namespace(string ...$namespace): string
     {
-        return $this->studly_path($namespace, $ds);
+        $ds = '\\';
+
+        // dd(Str::of(implode($ds, $namespace))->explode($ds));
+        return Str::of(implode($ds, $namespace))->explode($ds);
+        collect(explode($ds, implode($ds, $namespace)))
+            ->map(fn ($namespace) => Str::studly($namespace))
+            ->implode($ds);
+
+        return collect(explode($ds, implode($ds, $namespace)))
+            ->map(fn ($namespace) => Str::studly($namespace))
+            ->implode($ds);
     }
 
     /**
-     * Get a well-formatted namespace from a given path.
+     * Get a well-formatted namespace from a given path or paths.
      */
-    public function path_namespace(string $path): string
+    public function path_namespace(string ...$path): string
     {
-        return Str::of($this->studly_path($path))->replace('/', '\\')->trim('\\');
+        $ds = '\\';
+
+        return Str::of($this->studly_path(implode($ds, $path)))
+            ->replace('/', $ds)
+            ->trim($ds);
     }
 
     /**
      * Get a well-formatted StudlyCase namespace for a module, with an optional additional path.
      */
-    public function module_namespace(string $module, ?string $path = null): string
+    public function module_namespace(string $name, ?string ...$path): string
     {
-        $module_namespace = config('modules.namespace', $this->path_namespace(config('modules.paths.modules'))).'\\'.($module);
-        $module_namespace .= strlen($path) ? '\\'.$this->path_namespace($path) : '';
+        $ds = '\\';
+        $module_namespace = config('modules.namespace', $this->path_namespace(config('modules.paths.modules'))) . $ds . ($name);
+        $module_namespace .= count($path) ? $ds . $this->path_namespace(implode($ds, $path)) : '';
 
         return $this->studly_namespace($module_namespace);
     }
@@ -44,9 +63,28 @@ trait PathNamespace
     /**
      * Clean path
      */
-    public function clean_path(string $path, $ds = '/'): string
+    public function clean_namespace(string ...$path): string
     {
-        return Str::of($path)->explode($ds)->reject(empty($path))->implode($ds);
+        $ds = '\\';
+
+        return Str::of(implode($ds, $path))
+            ->explode($ds)
+            ->reject(empty($path))
+            ->implode($ds);
+    }
+
+    /**
+     * Clean path
+     */
+    public function clean_path(string ...$path): string
+    {
+        $ds = '/';
+
+        return Str::of(implode($ds, $path))
+            ->replace('\\', $ds)
+            ->explode($ds)
+            ->reject(empty($path))
+            ->implode($ds);
     }
 
     /**

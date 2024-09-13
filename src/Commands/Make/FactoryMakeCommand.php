@@ -7,6 +7,7 @@ use Nwidart\Modules\Support\Config\GenerateConfigReader;
 use Nwidart\Modules\Support\Stub;
 use Nwidart\Modules\Traits\ModuleCommandTrait;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class FactoryMakeCommand extends GeneratorCommand
 {
@@ -14,31 +15,33 @@ class FactoryMakeCommand extends GeneratorCommand
 
     /**
      * The name of argument name.
-     *
-     * @var string
      */
     protected $argumentName = 'name';
 
     /**
      * The console command name.
-     *
-     * @var string
      */
     protected $name = 'module:make-factory';
 
     /**
      * The console command description.
-     *
-     * @var string
      */
     protected $description = 'Create a new model factory for the specified module.';
 
+    protected function name(): string
+    {
+        return Str::of($this->argument('name'))->chopEnd('Factory')->studly();
+    }
+
+    protected function class(): string
+    {
+        return Str::of($this->name())->append('Factory');
+    }
+
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the model.'],
@@ -46,46 +49,42 @@ class FactoryMakeCommand extends GeneratorCommand
         ];
     }
 
-    /**
-     * @return mixed
-     */
-    protected function getTemplateContents()
+    protected function getOptions(): array
+    {
+        return [
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Model name [if different from factory name]', null],
+        ];
+    }
+
+    protected function getTemplateContents(): mixed
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
 
+        dd($this->getDefaultNamespace(), $this->getClassNamespace($module), $this->modelNamespace());
+
         return (new Stub('/factory.stub', [
             'NAMESPACE' => $this->getClassNamespace($module),
-            'NAME' => $this->getModelName(),
-            'MODEL_NAMESPACE' => $this->getModelNamespace(),
+            'CLASS' => $this->class(),
+            'MODEL' => $this->model(),
+            'MODEL_NAMESPACE' => $this->modelNamespace(),
         ]))->render();
     }
 
-    /**
-     * @return mixed
-     */
-    protected function getDestinationFilePath()
+    protected function getDestinationFilePath(): mixed
     {
-        $path = $this->laravel['modules']->getModulePath($this->getModuleName());
+        $path = GenerateConfigReader::read('factory')->getPath();
 
-        $factoryPath = GenerateConfigReader::read('factory');
-
-        return $path.$factoryPath->getPath().'/'.$this->getFileName();
+        return module_path($this->getModuleName(), $path . '/' . $this->filename());
     }
 
-    /**
-     * @return string
-     */
-    private function getFileName()
+    private function filename(): string
     {
-        return Str::studly($this->argument('name')).'Factory.php';
+        return Str::of($this->class())->append('.php');
     }
 
-    /**
-     * @return mixed|string
-     */
-    private function getModelName()
+    private function model(): mixed
     {
-        return Str::studly($this->argument('name'));
+        return $this->option('model') ?? $this->name();
     }
 
     /**
@@ -93,19 +92,17 @@ class FactoryMakeCommand extends GeneratorCommand
      */
     public function getDefaultNamespace(): string
     {
-        return config('modules.paths.generator.factory.namespace')
-            ?? ltrim(config('modules.paths.generator.factory.path', 'Database/Factories'), config('modules.paths.app_folder', ''));
+        return dd($this->studly_namespace(config('modules.paths.generator.factory.namespace', config('modules.paths.generator.factory.path', 'database/factories'))));
     }
 
     /**
-     * Get model namespace.
+     * Get the model namespace.
      */
-    public function getModelNamespace(): string
+    public function modelNamespace(): string
     {
-        $path = ltrim(config('modules.paths.generator.model.path', 'Entities'), config('modules.paths.app_folder', ''));
+        $path = ltrim($this->app_path(config('modules.paths.generator.model.path', 'app/Models')), $this->app_path());
+        $path = $this->clean_path($path);
 
-        $path = str_replace('/', '\\', $path);
-
-        return $this->laravel['modules']->config('namespace').'\\'.$this->laravel['modules']->findOrFail($this->getModuleName()).'\\'.$path;
+        return $this->module_namespace($this->laravel['modules']->findOrFail($this->getModuleName()), $path);
     }
 }
