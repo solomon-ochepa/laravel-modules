@@ -57,7 +57,7 @@ class ModelPruneCommand extends PruneCommand implements PromptsForMissingInput
         $selected_item = multiselect(
             label   : 'Select Modules',
             options : collect(Module::allEnabled())
-                ->map(fn (\Nwidart\Modules\Module $module) => $module->getName())
+                ->map(fn (\Nwidart\Modules\Module $module) => $module->name())
                 ->prepend(self::ALL)
                 ->values()
                 ->toArray(),

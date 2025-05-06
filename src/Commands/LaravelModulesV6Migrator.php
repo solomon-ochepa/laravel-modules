@@ -25,11 +25,11 @@ class LaravelModulesV6Migrator extends Command
         foreach ($modules as $module) {
             if ($module->json()->get('active') === 1) {
                 $module->enable();
-                $moduleStatuses[] = [$module->getName(), 'Enabled'];
+                $moduleStatuses[] = [$module->name(), 'Enabled'];
             }
             if ($module->json()->get('active') === 0) {
                 $module->disable();
-                $moduleStatuses[] = [$module->getName(), 'Disabled'];
+                $moduleStatuses[] = [$module->name(), 'Disabled'];
             }
         }
         $this->info('All modules have been migrated.');

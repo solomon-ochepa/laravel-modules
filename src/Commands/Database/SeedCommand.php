@@ -35,7 +35,7 @@ class SeedCommand extends BaseCommand
     {
         $module = $this->getModuleModel($name);
 
-        $this->components->task("Seeding <fg=cyan;options=bold>{$module->getName()}</> Module", function () use ($module) {
+        $this->components->task("Seeding <fg=cyan;options=bold>{$module->name()}</> Module", function () use ($module) {
             try {
                 $this->moduleSeed($module);
             } catch (\Error $e) {
@@ -92,7 +92,7 @@ class SeedCommand extends BaseCommand
     public function moduleSeed(Module $module)
     {
         $seeders = [];
-        $name = $module->getName();
+        $name = $module->name();
         $config = $module->get('migration');
 
         if (is_array($config) && array_key_exists('seeds', $config)) {

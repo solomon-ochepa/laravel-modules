@@ -58,7 +58,7 @@ class ModuleHelperTest extends BaseTestCase
         $module = module('Blog', true);
 
         $this->assertInstanceOf(Module::class, $module);
-        $this->assertEquals('Blog', $module->getName());
+        $this->assertEquals('Blog', $module->name());
     }
 
     public function test_module_returns_false_when_disabled()
@@ -75,7 +75,7 @@ class ModuleHelperTest extends BaseTestCase
         $module = module('Blog', true);
 
         $this->assertInstanceOf(Module::class, $module);
-        $this->assertEquals('Blog', $module->getName());
+        $this->assertEquals('Blog', $module->name());
     }
 
     public function test_module_directive_renders_content_when_module_is_enabled()

@@ -74,7 +74,8 @@ class ModuleGenerator extends Generator
      * Module author
      */
     protected array $author = [
-        'name', 'email',
+        'name',
+        'email',
     ];
 
     /**
@@ -123,16 +124,36 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the name of module that will be created (in StudlyCase).
+     *
+     * @deprecated use `name()` instead.
      */
     public function getName(): string
+    {
+        return $this->name();
+    }
+
+    /**
+     * Get the name of the module.
+     */
+    public function name(): string
     {
         return Str::studly($this->name);
     }
 
     /**
      * Get the laravel config instance.
+     *
+     * @deprecated use `config()` instead.
      */
     public function getConfig(): Config
+    {
+        return $this->config();
+    }
+
+    /**
+     * Get the laravel config instance.
+     */
+    public function config(): Config
     {
         return $this->config;
     }
@@ -159,8 +180,18 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the laravel filesystem instance.
+     *
+     * @deprecated use `filesystem()` instead.
      */
     public function getFilesystem(): Filesystem
+    {
+        return $this->filesystem();
+    }
+
+    /**
+     * Get the laravel filesystem instance.
+     */
+    public function filesystem(): Filesystem
     {
         return $this->filesystem;
     }
@@ -177,8 +208,18 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the laravel console instance.
+     *
+     * @deprecated use `console()` instead.
      */
     public function getConsole(): Console
+    {
+        return $this->console();
+    }
+
+    /**
+     * Get the laravel console instance.
+     */
+    public function console(): Console
     {
         return $this->console;
     }
@@ -193,7 +234,20 @@ class ModuleGenerator extends Generator
         return $this;
     }
 
-    public function getComponent(): \Illuminate\Console\View\Components\Factory
+    /**
+     * Get the laravel component instance.
+     *
+     * @deprecated use `component()` instead.
+     */
+    public function getComponent(): Factory
+    {
+        return $this->component();
+    }
+
+    /**
+     * Get the laravel component instance.
+     */
+    public function component(): Factory
     {
         return $this->component;
     }
@@ -209,6 +263,14 @@ class ModuleGenerator extends Generator
      * Get the module instance.
      */
     public function getModule(): Module
+    {
+        return $this->get();
+    }
+
+    /**
+     * Get the module instance.
+     */
+    public function get(): Module
     {
         return $this->module;
     }
@@ -246,16 +308,36 @@ class ModuleGenerator extends Generator
 
     /**
      * Get the list of folders will created.
+     *
+     * @deprecated use `paths()` instead.
      */
     public function getFolders(): array
+    {
+        return $this->paths();
+    }
+
+    /**
+     * Get the list of paths that will be created.
+     */
+    public function paths(): array
     {
         return $this->module->config('paths.generator');
     }
 
     /**
      * Get the list of files will created.
+     *
+     * @deprecated use `files()` instead.
      */
     public function getFiles(): array
+    {
+        return $this->files();
+    }
+
+    /**
+     * Get the list of files will created.
+     */
+    public function files(): array
     {
         return $this->module->config('stubs.files');
     }
@@ -275,7 +357,7 @@ class ModuleGenerator extends Generator
      */
     public function generate(): int
     {
-        $name = $this->getName();
+        $name = $this->name();
 
         if ($this->module->has($name)) {
             if ($this->force) {
@@ -322,14 +404,14 @@ class ModuleGenerator extends Generator
      */
     public function generateFolders()
     {
-        foreach ($this->getFolders() as $key => $folder) {
+        foreach (array_keys($this->paths()) as $key) {
             $folder = GenerateConfigReader::read($key);
 
             if ($folder->generate() === false) {
                 continue;
             }
 
-            $path = $this->module->getModulePath($this->getName()).'/'.$folder->getPath();
+            $path = $this->module->getModulePath($this->name()).'/'.$folder->path();
 
             $this->filesystem->ensureDirectoryExists($path, 0755, true);
             if (config('modules.stubs.gitkeep')) {
@@ -351,8 +433,8 @@ class ModuleGenerator extends Generator
      */
     public function generateFiles()
     {
-        foreach ($this->getFiles() as $stub => $file) {
-            $path = $this->module->getModulePath($this->getName()).$file;
+        foreach ($this->files() as $stub => $file) {
+            $path = $this->module->getModulePath($this->name()).$file;
 
             $this->component->task("Generating file {$path}", function () use ($stub, $path) {
                 if (! $this->filesystem->isDirectory($dir = dirname($path))) {
@@ -371,8 +453,8 @@ class ModuleGenerator extends Generator
     {
         if (GenerateConfigReader::read('seeder')->generate() === true) {
             $this->console->call('module:make-seed', [
-                'name' => $this->getName(),
-                'module' => $this->getName(),
+                'name' => $this->name(),
+                'module' => $this->name(),
                 '--master' => true,
             ]);
         }
@@ -380,13 +462,13 @@ class ModuleGenerator extends Generator
         $providerGenerator = GenerateConfigReader::read('provider');
         if ($providerGenerator->generate() === true) {
             $this->console->call('module:make-provider', [
-                'name' => $this->getName().'ServiceProvider',
-                'module' => $this->getName(),
+                'name' => $this->name().'ServiceProvider',
+                'module' => $this->name(),
                 '--master' => true,
             ]);
         } else {
             // delete register ServiceProvider on module.json
-            $path = $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.'module.json';
+            $path = $this->module->getModulePath($this->name()).DIRECTORY_SEPARATOR.'module.json';
             $module_file = $this->filesystem->get($path);
             $this->filesystem->put(
                 $path,
@@ -400,7 +482,7 @@ class ModuleGenerator extends Generator
             || (! is_null($eventGeneratorConfig->getPath()) && $eventGeneratorConfig->generate())
         ) {
             $this->console->call('module:make-event-provider', [
-                'module' => $this->getName(),
+                'module' => $this->name(),
             ]);
         } else {
             if ($providerGenerator->generate()) {
@@ -408,7 +490,7 @@ class ModuleGenerator extends Generator
                 $this->filesystem->replaceInFile(
                     '$this->app->register(Event',
                     '// $this->app->register(Event',
-                    $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.$providerGenerator->getPath().DIRECTORY_SEPARATOR.sprintf('%sServiceProvider.php', $this->getName())
+                    $this->module->getModulePath($this->name()).DIRECTORY_SEPARATOR.$providerGenerator->path(sprintf('%sServiceProvider.php', $this->name()))
                 );
             }
         }
@@ -419,7 +501,7 @@ class ModuleGenerator extends Generator
             || (! is_null($routeGeneratorConfig->getPath()) && $routeGeneratorConfig->generate())
         ) {
             $this->console->call('module:route-provider', [
-                'module' => $this->getName(),
+                'module' => $this->name(),
             ]);
         } else {
             if ($providerGenerator->generate()) {
@@ -427,7 +509,7 @@ class ModuleGenerator extends Generator
                 $this->filesystem->replaceInFile(
                     '$this->app->register(Route',
                     '// $this->app->register(Route',
-                    $this->module->getModulePath($this->getName()).DIRECTORY_SEPARATOR.$providerGenerator->getPath().DIRECTORY_SEPARATOR.sprintf('%sServiceProvider.php', $this->getName())
+                    $this->module->getModulePath($this->name()).DIRECTORY_SEPARATOR.$providerGenerator->path(sprintf('%sServiceProvider.php', $this->name()))
                 );
             }
         }
@@ -435,36 +517,62 @@ class ModuleGenerator extends Generator
         if (GenerateConfigReader::read('controller')->generate() === true) {
             $options = $this->type == 'api' ? ['--api' => true] : [];
             $this->console->call('module:make-controller', [
-                'controller' => $this->getName().'Controller',
-                'module' => $this->getName(),
+                'controller' => $this->name().'Controller',
+                'module' => $this->name(),
             ] + $options);
         }
     }
 
     /**
      * Get the contents of the specified stub file by given stub name.
+     *
+     * @deprecated use `stub()` instead.
      */
     protected function getStubContents($stub): string
     {
-        return (new Stub(
-            '/'.$stub.'.stub',
-            $this->getReplacement($stub)
-        )
-        )->render();
+        return $this->stub($stub);
+    }
+
+    /**
+     * Get the contents of the specified stub file by given stub name.
+     */
+    protected function stub($stub): string
+    {
+        return (new Stub('/'.$stub.'.stub', $this->replacement($stub)))->render();
+    }
+
+    /**
+     * get the list for the replacements.
+     *
+     * @deprecated use `replacements()` instead.
+     */
+    public function getReplacements()
+    {
+        return $this->replacements();
     }
 
     /**
      * get the list for the replacements.
      */
-    public function getReplacements()
+    public function replacements()
     {
         return $this->module->config('stubs.replacements');
     }
 
     /**
      * Get array replacement for the specified stub.
+     *
+     * @deprecated use `replacement()` instead.
      */
     protected function getReplacement($stub): array
+    {
+        return $this->replacement($stub);
+    }
+
+    /**
+     * Get array replacement for the specified stub.
+     */
+    protected function replacement($stub): array
     {
         $replacements = $this->module->config('stubs.replacements');
 
@@ -517,14 +625,14 @@ class ModuleGenerator extends Generator
      */
     private function generateModuleJsonFile()
     {
-        $path = $this->module->getModulePath($this->getName()).'module.json';
+        $path = $this->module->getModulePath($this->name()).'module.json';
 
         $this->component->task("Generating file $path", function () use ($path) {
             if (! $this->filesystem->isDirectory($dir = dirname($path))) {
                 $this->filesystem->makeDirectory($dir, 0775, true);
             }
 
-            $this->filesystem->put($path, $this->getStubContents('json'));
+            $this->filesystem->put($path, $this->stub('json'));
         });
     }
 
@@ -534,13 +642,14 @@ class ModuleGenerator extends Generator
      */
     private function cleanModuleJsonFile()
     {
-        $path = $this->module->getModulePath($this->getName()).'module.json';
+        $json = $this->module->getModulePath($this->name()).'module.json';
 
         $content = $this->filesystem->get($path);
         $namespace = $this->getModuleNamespaceReplacement();
         $studlyName = $this->getStudlyNameReplacement();
 
-        $provider = '"'.$namespace.'\\\\'.$studlyName.'\\\\Providers\\\\'.$studlyName.'ServiceProvider"';
+        $provider = Str::of($this->module_namespace($this->name(), $namespace))->replace('\\', '\\\\');
+        $content = str_replace('"'.$provider.'"', '', $content);
 
         $content = str_replace($provider, '', $content);
 
@@ -552,7 +661,7 @@ class ModuleGenerator extends Generator
      */
     protected function getLowerNameReplacement(): string
     {
-        return strtolower($this->getName());
+        return strtolower($this->name());
     }
 
     /**
@@ -560,12 +669,12 @@ class ModuleGenerator extends Generator
      */
     protected function getPluralLowerNameReplacement(): string
     {
-        return Str::of($this->getName())->lower()->plural();
+        return Str::of($this->name())->lower()->plural();
     }
 
     protected function getKebabNameReplacement(): string
     {
-        return Str::kebab($this->getName());
+        return Str::kebab($this->name());
     }
 
     /**
@@ -573,7 +682,7 @@ class ModuleGenerator extends Generator
      */
     protected function getStudlyNameReplacement(): string
     {
-        return $this->getName();
+        return $this->name();
     }
 
     /**
@@ -581,7 +690,7 @@ class ModuleGenerator extends Generator
      */
     protected function getPluralStudlyNameReplacement(): string
     {
-        return Str::of($this->getName())->pluralStudly();
+        return Str::of($this->name())->pluralStudly();
     }
 
     /**
@@ -638,13 +747,23 @@ class ModuleGenerator extends Generator
 
     protected function getProviderNamespaceReplacement(): string
     {
-        return str_replace('\\', '\\\\', GenerateConfigReader::read('provider')->getNamespace());
+        return str_replace('\\', '\\\\', GenerateConfigReader::read('provider')->namespace());
     }
 
     /**
      * fire the module event.
+     *
+     * @deprecated use `event()` instead.
      */
     protected function fireEvent(string $event): void
+    {
+        $this->event($event);
+    }
+
+    /**
+     * Fire the module event.
+     */
+    protected function event(string $event): void
     {
         $module = $this->module->find($this->name);
 

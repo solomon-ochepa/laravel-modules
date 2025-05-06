@@ -26,7 +26,7 @@ class MigrateRefreshCommand extends BaseCommand implements ConfirmableCommand
     {
         $module = $this->getModuleModel($name);
 
-        $this->components->task("Refreshing Migration {$module->getName()} module", function () use ($module) {
+        $this->components->task("Refreshing Migration {$module->name()} module", function () use ($module) {
             $this->call('module:migrate-reset', [
                 'module' => $module->getStudlyName(),
                 '--database' => $this->option('database'),

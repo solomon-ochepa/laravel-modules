@@ -35,7 +35,7 @@ class DisableCommand extends BaseCommand
             ? '<fg=red;options=bold>Disabled</>'
             : '<fg=green;options=bold>Enabled</>';
 
-        $this->components->task("Disabling <fg=cyan;options=bold>{$module->getName()}</> Module, old status: $status", function () use ($module) {
+        $this->components->task("Disabling <fg=cyan;options=bold>{$module->name()}</> Module, old status: $status", function () use ($module) {
             $module->disable();
         });
     }

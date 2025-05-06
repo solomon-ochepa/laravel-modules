@@ -26,7 +26,7 @@ class PublishMigrationCommand extends BaseCommand
     {
         $module = $this->getModuleModel($name);
 
-        $this->components->task("Publishing Migration <fg=cyan;options=bold>{$module->getName()}</> Module", function () use ($module) {
+        $this->components->task("Publishing Migration <fg=cyan;options=bold>{$module->name()}</> Module", function () use ($module) {
             with(new MigrationPublisher(new Migrator($module, $this->getLaravel())))
                 ->setRepository($this->laravel['modules'])
                 ->setConsole($this)

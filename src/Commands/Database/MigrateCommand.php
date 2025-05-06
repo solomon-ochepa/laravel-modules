@@ -42,7 +42,7 @@ class MigrateCommand extends BaseCommand
     {
         $module = $this->getModuleModel($name);
 
-        $this->components->twoColumnDetail("Running Migration <fg=cyan;options=bold>{$module->getName()}</> Module");
+        $this->components->twoColumnDetail("Running Migration <fg=cyan;options=bold>{$module->name()}</> Module");
 
         $module_path = $module->getPath();
 
@@ -58,7 +58,7 @@ class MigrateCommand extends BaseCommand
         ]));
 
         if ($this->option('seed')) {
-            $this->call('module:seed', ['module' => $module->getName(), '--force' => $this->option('force')]);
+            $this->call('module:seed', ['module' => $module->name(), '--force' => $this->option('force')]);
         }
 
     }

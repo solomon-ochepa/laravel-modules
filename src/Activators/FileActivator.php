@@ -63,7 +63,7 @@ class FileActivator implements ActivatorInterface
      */
     public function enable(Module $module): void
     {
-        $this->setActiveByName($module->getName(), true);
+        $this->setActiveByName($module->name(), true);
     }
 
     /**
@@ -71,7 +71,7 @@ class FileActivator implements ActivatorInterface
      */
     public function disable(Module $module): void
     {
-        $this->setActiveByName($module->getName(), false);
+        $this->setActiveByName($module->name(), false);
     }
 
     /**
@@ -79,7 +79,7 @@ class FileActivator implements ActivatorInterface
      */
     public function hasStatus(Module|string $module, bool $status): bool
     {
-        $name = $module instanceof Module ? $module->getName() : $module;
+        $name = $module instanceof Module ? $module->name() : $module;
 
         if (! isset($this->modulesStatuses[$name])) {
             return $status === false;
@@ -93,7 +93,7 @@ class FileActivator implements ActivatorInterface
      */
     public function setActive(Module $module, bool $active): void
     {
-        $this->setActiveByName($module->getName(), $active);
+        $this->setActiveByName($module->name(), $active);
     }
 
     /**
@@ -110,10 +110,10 @@ class FileActivator implements ActivatorInterface
      */
     public function delete(Module $module): void
     {
-        if (! isset($this->modulesStatuses[$module->getName()])) {
+        if (! isset($this->modulesStatuses[$module->name()])) {
             return;
         }
-        unset($this->modulesStatuses[$module->getName()]);
+        unset($this->modulesStatuses[$module->name()]);
         $this->writeJson();
     }
 

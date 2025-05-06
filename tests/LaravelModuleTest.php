@@ -48,7 +48,7 @@ class LaravelModuleTest extends BaseTestCase
 
     public function test_it_gets_module_name()
     {
-        $this->assertEquals('Recipe Name', $this->module->getName());
+        $this->assertEquals('Recipe Name', $this->module->name());
     }
 
     public function test_it_gets_lowercase_module_name()

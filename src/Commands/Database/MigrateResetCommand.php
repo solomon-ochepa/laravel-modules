@@ -48,7 +48,7 @@ class MigrateResetCommand extends BaseCommand implements ConfirmableCommand
             return;
         }
 
-        $this->components->warn("Nothing to rollback on module <fg=cyan;options=bold>{$module->getName()}</>");
+        $this->components->warn("Nothing to rollback on module <fg=cyan;options=bold>{$module->name()}</>");
     }
 
     public function getInfo(): ?string

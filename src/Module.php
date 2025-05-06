@@ -74,8 +74,18 @@ abstract class Module
 
     /**
      * Returns an array of assets
+     *
+     * @deprecated use `assets()` instead
      */
     public static function getAssets(): array
+    {
+        return self::assets();
+    }
+
+    /**
+     * Returns an array of assets
+     */
+    public static function assets(): array
     {
         $paths = [];
 
@@ -101,10 +111,20 @@ abstract class Module
 
     /**
      * Get name.
+     *
+     * @deprecated use `name()` instead
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->name();
+    }
+
+    /**
+     * Get the module name.
+     */
+    public function name(): string
+    {
+        return Str::of($this->name);
     }
 
     /**
@@ -141,16 +161,36 @@ abstract class Module
 
     /**
      * Get description.
+     *
+     * @deprecated use `description()` instead
      */
     public function getDescription(): string
+    {
+        return $this->description();
+    }
+
+    /**
+     * Get module description.
+     */
+    public function description(): string
     {
         return $this->get('description');
     }
 
     /**
      * Get priority.
+     *
+     * @deprecated use `priority()` instead
      */
     public function getPriority(): string
+    {
+        return $this->priority();
+    }
+
+    /**
+     * Get priority.
+     */
+    public function priority(): string
     {
         return $this->get('priority');
     }
@@ -160,7 +200,7 @@ abstract class Module
      */
     public function getPath(): string
     {
-        return $this->path;
+        return $this->path();
     }
 
     /**
@@ -168,9 +208,7 @@ abstract class Module
      */
     public function getAppPath(): string
     {
-        $app_path = rtrim($this->getExtraPath(config('modules.paths.app_folder', '')), '/');
-
-        return is_dir($app_path) ? $app_path : $this->getPath();
+        return $this->app_path();
     }
 
     /**
@@ -196,7 +234,7 @@ abstract class Module
             $this->registerFiles();
         }
 
-        $this->fireEvent(ModuleEvent::BOOT);
+        $this->event(ModuleEvent::BOOT);
     }
 
     /**
@@ -237,8 +275,18 @@ abstract class Module
 
     /**
      * Get a specific data from composer.json file by given the key.
+     *
+     * @deprecated use `composer()` instead
      */
     public function getComposerAttr(string $key, $default = null)
+    {
+        return $this->json('composer.json')->get($key, $default);
+    }
+
+    /**
+     * Get a specific data from composer.json file by given the key.
+     */
+    public function composer(string $key, $default = null)
     {
         return $this->json('composer.json')->get($key, $default);
     }
@@ -256,13 +304,23 @@ abstract class Module
             $this->registerFiles();
         }
 
-        $this->fireEvent(ModuleEvent::REGISTER);
+        $this->event(ModuleEvent::REGISTER);
+    }
+
+    /**
+     * fire the module event.
+     *
+     * @deprecated use `event()` instead
+     */
+    public function fireEvent(string $event): void
+    {
+        $this->event($event);
     }
 
     /**
      * fire the module event.
      */
-    public function fireEvent(string $event): void
+    public function event(string $event): void
     {
         $this->app['events']->dispatch(sprintf('modules.%s.%s', $this->getLowerName(), $event), [$this]);
     }
@@ -305,23 +363,52 @@ abstract class Module
      */
     public function isStatus(bool $status): bool
     {
+        return $this->status($status);
+    }
+
+    /**
+     * Determine whether the given status same with the current module status.
+     * Todo: Get the module status if `$status` is null|empty ~ `status(?bool $status = null)`.
+     */
+    public function status(bool $status): bool
+    {
         return $this->activator->hasStatus($this, $status);
     }
 
     /**
      * Determine whether the current module activated.
+     *
+     * @deprecated use `enabled()` instead
      */
     public function isEnabled(): bool
+    {
+        return $this->enabled();
+    }
+
+    /**
+     * Determine whether the current module activated.
+     */
+    public function enabled(): bool
     {
         return $this->activator->hasStatus($this, true);
     }
 
     /**
      *  Determine whether the current module not disabled.
+     *
+     * @deprecated use `disabled()` instead
      */
     public function isDisabled(): bool
     {
-        return ! $this->isEnabled();
+        return $this->disabled();
+    }
+
+    /**
+     *  Determine whether the current module not disabled.
+     */
+    public function disabled(): bool
+    {
+        return ! $this->enabled();
     }
 
     /**
@@ -337,11 +424,11 @@ abstract class Module
      */
     public function disable(): void
     {
-        $this->fireEvent(ModuleEvent::DISABLING);
+        $this->event(ModuleEvent::DISABLING);
 
         $this->activator->disable($this);
 
-        $this->fireEvent(ModuleEvent::DISABLED);
+        $this->event(ModuleEvent::DISABLED);
     }
 
     /**
@@ -349,11 +436,11 @@ abstract class Module
      */
     public function enable(): void
     {
-        $this->fireEvent(ModuleEvent::ENABLING);
+        $this->event(ModuleEvent::ENABLING);
 
         $this->activator->enable($this);
 
-        $this->fireEvent(ModuleEvent::ENABLED);
+        $this->event(ModuleEvent::ENABLED);
     }
 
     /**
@@ -361,13 +448,13 @@ abstract class Module
      */
     public function delete(): bool
     {
-        $this->fireEvent(ModuleEvent::DELETING);
+        $this->event(ModuleEvent::DELETING);
 
         $this->activator->delete($this);
 
         $result = $this->json()->getFilesystem()->deleteDirectory($this->getPath());
 
-        $this->fireEvent(ModuleEvent::DELETED);
+        $this->event(ModuleEvent::DELETED);
 
         return $result;
     }

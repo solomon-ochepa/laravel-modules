@@ -48,7 +48,7 @@ class ListCommand extends Command
         /** @var Module $module */
         foreach ($this->getModules() as $module) {
             $rows[] = [
-                $module->getName(),
+                $module->name(),
                 $module->isEnabled() ? '<fg=green>Enabled</>' : '<fg=red>Disabled</>',
                 $module->get('priority'),
                 $module->getPath(),
